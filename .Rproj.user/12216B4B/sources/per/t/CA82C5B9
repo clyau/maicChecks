@@ -1,0 +1,26 @@
+{
+    "id": "CA82C5B9",
+    "path": "~/Documents/bb/aa_NewStat/24_rCollectives/maicChecks/R/maicLP.R",
+    "project_path": "R/maicLP.R",
+    "type": "r_source",
+    "hash": "1038633616",
+    "contents": "",
+    "dirty": false,
+    "created": 1689763854021.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "40,10",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1688551670,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1688551670,
+    "read_only": false,
+    "read_only_alternatives": []
+}

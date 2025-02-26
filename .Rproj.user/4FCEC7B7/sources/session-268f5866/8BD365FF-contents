@@ -1,0 +1,150 @@
+'================================================================'
+# UK VAN oncology rotation
+# Date: adb1 and adsl
+# Author: Xinlei Deng
+# R Version: R version 4.3.1 (2023-06-16)
+# Last Modified Date (Year-MM-DD): 2025-02-13
+'================================================================'
+
+
+library(haven)
+library(data.table)
+library(tidyverse)
+library(table1)
+library(kableExtra)
+library(forestmodel)
+
+# Analysis folder ---------------------------------------------------------
+
+setwd(paste0('/view/',Sys.getenv("USER"),'_view/vob/CABL001J/CABL001J12301/csr_2'))
+
+adsl <- read_sas('analysis_data/adsl.sas7bdat')
+adb1 <- read_sas('analysis_data/adb1.sas7bdat')
+var_name <- labelled::var_label(adb1)
+var_name <- do.call('rbind',var_name) %>%  as.data.frame() %>%  rownames_to_column()
+
+var_baseline <- adsl %>%  select(USUBJID,BMIBL,AGEGR1,STRVAL1,STRVAL2,CVDRSCAT,CCIPT)
+
+df <- adb1 %>% as.data.frame() %>%  filter(AVISITN==12,PARAM=='MMR at visit',FASFL=='Y') %>% 
+  select(USUBJID,AVISIT,RACE,ARMCD,SEX,AVAL,crit10) %>%  left_join(.,var_baseline,by='USUBJID') %>% 
+  mutate(early_response=ifelse(crit10=='MR2','Early response','No early response'),
+         race_new=ifelse(!RACE%in%c("BLACK OR AFRICAN AMERICAN" ,"UNKNOWN"),str_to_sentence(RACE),'Others'))
+
+df$race_new <- factor(df$race_new,levels = c('White','Asian','Others'))
+df$SEX <- factor(df$SEX,levels = c('F','M'),labels = c('Female','Male'))
+df$CVDRSCAT <- factor(df$CVDRSCAT,levels = c(
+  'Low (estimated risk <10%)',
+  'Intermediate (estimated risk between 10% and 20%)',
+  'High (estimated risk >=20%)'),labels = c('Low','Intermediate','High'))
+
+label(df$AGEGR1) <- 'Age group, %'
+label(df$SEX) <- 'Sex, %'
+label(df$race_new) <- 'Race, %'
+label(df$ARMCD) <- 'Treatment arm, %'
+label(df$CVDRSCAT) <- 'Framingham CV risk score, %'
+label(df$STRVAL1) <- 'ELTS, %'
+label(df$STRVAL2) <- 'PRS-TKI, %'
+tab=table1(~SEX+AGEGR1+race_new+CVDRSCAT+STRVAL1+STRVAL2+BMIBL+CCIPT|early_response*ARMCD,data=df,rowlabelhead ='Group')
+
+
+# logistic regression -----------------------------------------------------
+
+df$early_response=as.factor(df$early_response)
+
+model <- glm(early_response~SEX+AGEGR1+race_new+CVDRSCAT+STRVAL1+STRVAL2+ARMCD+BMIBL+CCIPT,
+              data = df,family = binomial(link = 'logit'))
+out=NULL
+for (i in c('SEX','AGEGR1','race_new','CVDRSCAT','STRVAL1','STRVAL2','ARMCD')) {
+  tmp=matrix(paste0(table(df[,i],df[,'ARMCD']),' (',sprintf('%.1f',prop.table(table(df[,i],df[,'ARMCD']),margin = 2)*100),')'),ncol=2)
+  out=rbind(out,tmp)
+}
+
+tmp=df %>% group_by(ARMCD) %>% summarise(BMI=paste0(sprintf('%.1f',mean(BMIBL,na.rm = T)),' ± ',sprintf('%.1f',sd(BMIBL,na.rm = T))),
+                                     CCIPT=paste0(sprintf('%.1f',mean(CCIPT,na.rm = T)),' ± ',sprintf('%.1f',sd(CCIPT,na.rm = T))))
+out <- rbind(out,t(tmp[,'BMI']),t(tmp[,'CCIPT'])) %>% as.data.frame()
+
+panels <- list(
+  list(width = 0.03),
+  list(width = 0.1, display = ~variable, fontface = "bold", heading = "Variable"),
+  list(width = 0.1, display = ~level),
+  list(width = 0.1, display = ~out[,1], heading = "ABL001\nN/Mean (%/SD)"),
+  list(width = 0.1, display = ~out[,2],  heading = "INVTKI\nN/Mean (%/SD)"),
+  list(width = 0.03, item = "vline", hjust = 0.5),
+  list(
+    width = 0.1, item = "forest", hjust = 0.9, heading = "No EMR              EMR", linetype = "dashed",
+    line_x = 0
+  ),
+  list(width = 0.1, item = "vline", hjust = 0.5),
+  list(width = 0.5, display = ~ ifelse(reference, "Reference", sprintf(
+    "%0.1f (%0.1f, %0.1f)",
+    trans(estimate), trans(conf.low), trans(conf.high)
+  )), display_na = NA,heading='Log(OR)'),
+  # list(
+  #   width = 0.05,
+  #   display = ~ ifelse(reference, "", format.pval(p.value, digits = 1, eps = 0.001)),
+  #   display_na = NA, heading = "P value"
+  # ),
+  list(width = 0.03)
+)
+
+forest_model(model,panels = panels,exponentiate = F,
+             recalculate_height=T,
+             recalculate_width=T)
+ggsave('~/Oncology_VAN/logistic regression.png',width=18,height=12)
+
+
+# Table EMR ---------------------------------------------------------------
+
+df12 <- adb1 %>% filter(AVISITN==12,PARAM=='MMR at visit',FASFL=='Y',
+                        !AVALCAT1%in%c('>10%','Missing')) %>% mutate(EMR12=1) %>% 
+  select(USUBJID,EMR12)
+df24 <- adb1 %>% filter(AVISIT=='Week 24',PARAM=='MMR at visit',FASFL=='Y',
+                        !AVALCAT1%in%c('>10%','>1% - <=10%','Missing')) %>% mutate(EMR24=1) %>% 
+  select(USUBJID,EMR24)
+
+df <- merge(df12,df24,by='USUBJID',all = T) %>% left_join(.,adsl[,c('USUBJID','ARMCD')],by='USUBJID')
+
+df[,2:3] <- nafill(df[,2:3],fill = 0)
+
+df.tmp=df
+out=table(df.tmp$EMR12,df.tmp$EMR24) %>% as.data.frame.matrix()
+out[,'total']=rowSums(out)
+out['total',]=colSums(out)
+names(out)[1:2]=c('BCR-ABL1 (IS) >1% at 6 months', 'BCR-ABL1 (IS) ≤1% at 6 months')
+rownames(out)[1:2]=c('BCR-ABL1 (IS) >10% at 3 months', 'BCR-ABL1 (IS) ≤10% at 3 months')
+tab=out %>% kbl(caption = "") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+
+df.tmp=df[df$ARMCD=='INVTKI',]
+out=table(df.tmp$EMR12,df.tmp$EMR24) %>% as.data.frame.matrix()
+out[,'total']=rowSums(out)
+out['total',]=colSums(out)
+names(out)[1:2]=c('BCR-ABL1 (IS) >1% at 6 months', 'BCR-ABL1 (IS) ≤1% at 6 months')
+rownames(out)[1:2]=c('BCR-ABL1 (IS) >10% at 3 months', 'BCR-ABL1 (IS) ≤10% at 3 months')
+
+tab1=out %>% kbl(caption = "") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+
+df.tmp=df[df$ARMCD=='ABL001',]
+out=table(df.tmp$EMR12,df.tmp$EMR24) %>% as.data.frame.matrix()
+out[,'total']=rowSums(out)
+out['total',]=colSums(out)
+names(out)[1:2]=c('BCR-ABL1 (IS) >1% at 6 months', 'BCR-ABL1 (IS) ≤1% at 6 months')
+rownames(out)[1:2]=c('BCR-ABL1 (IS) >10% at 3 months', 'BCR-ABL1 (IS) ≤10% at 3 months')
+
+tab2=out %>% kbl(caption = "") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+tab
+tab1
+tab2
+
+
+
+tmp <- adb1 %>% filter(AVISIT=='Week 12',PARAM=='AVERAGE COPY/CONTROL RATIO'
+                       # ,AVALCAT1!='>10%'
+                       )
+
+tmp=tmp %>% select(USUBJID,AVISIT,TRTP,ADT,ADY,AVAL,ANL01DSC,FASFL,AVALCAT1)
+
+

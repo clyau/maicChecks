@@ -3,7 +3,7 @@
     "path": "~/maicChecks/index.md",
     "project_path": "index.md",
     "type": "markdown",
-    "hash": "556914448",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1740585769525.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "8,22",
+        "cursorPosition": "6,172",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1740585782,
+    "lastKnownWriteTime": 1740586074,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1740585782168,
+    "last_content_update": 1740586074826,
     "read_only": false,
     "read_only_alternatives": []
 }

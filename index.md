@@ -4,7 +4,8 @@ title: maicChecks
 tagline: Matching-adjusted indirect comparisons
 description: Matching-adjusted indirect comparisons
 ---
-# maicChecks <a href="https://github.com/clyau/maicChecks"><img src="MAIC_FINAL.png" align="right" height=140/></a>
+# maicChecks 
+<a href="https://github.com/clyau/maicChecks"><img src="MAIC_FINAL.png" align="right" height=140/></a>
 
 <!-- badges: start -->
 

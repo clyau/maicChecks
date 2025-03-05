@@ -26,7 +26,7 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 -   Matching-adjusted indirect comparison (MAIC) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
--   Various checks to assess feasibility of conducting MAIC as introduced in ([Glimm and Yau (2022)](#reference))
+-   Various checks to assess feasibility of conducting the above two methods ([Glimm and Yau (2022)](#reference))
 
 **Version 0.2.0** was released on CRAN on 3 March, 2025. It implements the following methods:
 

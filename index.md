@@ -1,11 +1,11 @@
 ---
 layout: page
-title: maicChecks
+title: maicChecks - an R package
 tagline: Exact matching and matching-adjusted indirect comparisons
 description: Exact matching and matching-adjusted indirect comparisons
 ---
 
-# maicChecks <a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>: an R package
+# maicChecks <a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
 
 <!-- badges: start -->
 

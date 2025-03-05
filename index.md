@@ -1,17 +1,16 @@
 ---
 layout: page
-title: maicChecks - an R package
-tagline: Exact matching and matching-adjusted indirect comparisons
+title: Exact matching and matching-adjusted indirect comparisons
+tagline: 
 description: Exact matching and matching-adjusted indirect comparisons
 ---
 
-# maicChecks <a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
-
 <!-- badges: start -->
 
-[![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html) [![downloads](https://cranlogs.r-pkg.org/badges/maicChecks)](https://www.rdocumentation.org/trends)
+[![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html) [![downloads](https://cranlogs.r-pkg.org/badges/maicChecks)](https://www.rdocumentation.org/trends)<a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
 
 <!-- badges: end -->
+
 
 ## Installation
 

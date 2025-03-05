@@ -14,10 +14,10 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ## Installation
 
-**Package**: `maicChekcs`   
-**Type**   : Release (version 0.2.0)    
-**Source** : CRAN    
-**Command**: `install.packages("maicChecks")`   
+**Package:** `maicChekcs`   
+**Type\ \ \ :**  Release (version 0.2.0)    
+**Source\ :** CRAN    
+**Command:** `install.packages("maicChecks")`   
 
 ## Version history
 

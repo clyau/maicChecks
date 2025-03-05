@@ -14,12 +14,25 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ## Installation
 
-| Type            | Source | Command                          |
-|-----------------|--------|----------------------------------|
-| Release (0.2.0) | CRAN   | `install.packages("maicChecks")` |
+|Package        | Type                 | Source      | Command                          |
+|---------------|----------------------|-------------|----------------------------------|
+|`maicChecks`   | Release (0.2.0)      | CRAN        | `install.packages("maicChecks")` |
+
+## Version history
+
+Version 0.1.2 was released on CRAN on 4 January, 2022. It implements the following methods:
+
+-   Matching-adjusted indirect comparison (MAIC) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
+-   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
+-   Various checks to assess feasibility of conducting MAIC as introduced in [Glimm and Yau (2022)](#reference)
+
+Version 0.2.0 was released on CRAN on 3 March, 2025. It implements the following methods:
+
+-   Exact matching by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
+
 
 ## Overview
-
+[]
 The comparison of different medical treatments from observational studies or across different clinical studies is often biased by confounding factors such as systematic differences in patient demographics or in the inclusion criteria for the trials. The confounding must be adjusted before indirect comparisons can be conducted. The adjustment is usually accomplished by matching the baseline covariates so that patients from one or both studies are each assigned a weight, which are taken into account when comparing clinical outcomes.
 
 From a data availability prespective, two situations arise:
@@ -136,7 +149,8 @@ m1 <- maicWt(eIPD, eAD[1,2:3])
 ## Reference
 
 -   Glimm E and Yau L. (2025). "Exact matching as an alternative to propensity score matching." [arXiv:2503.02850v1](https://doi.org/10.48550/arXiv.2503.02850).
--   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).
+-   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).    
+-   Signorovitch JE, Wu EQ, Andrew P, et al. (2010). "Comparative effectiveness without head-to-head trials: a method for matching-adjusted indirect comparisons applied to psoriasis treatment with adalimumab or etanercept." *PharmacoEconomics*. 28(10):935-945.
 
 ## Package authors
 

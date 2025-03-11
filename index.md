@@ -22,15 +22,21 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ## Version history
 
+### Version 0.2.0
+
 **_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. The following method is added:
 
 -   [Exact matching](#exact-matching) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
 
-Initial **Version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
+### Version 0.1.2
+
+Initial **version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
 
 -   Matching-adjusted indirect comparison ([MAIC]) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
 -   Various checks to assess feasibility of conducting the above two methods ([Glimm and Yau (2022)](#reference))
+
+All functionalities in the initial version are retained in the current version 0.2.0.
 
 ## Overview
 
@@ -76,7 +82,7 @@ exmLP.2ipd(ipd1 = ipd1, ipd2 = ipd2,
 ```
 The check returns 0, indicating a solution should exists. Note that by default the additional constraint is set to false (`mean.constrained = FALSE`). In this example, it is added to the check (`mean.constrained = TRUE`)
 
-### Method: Exact matching
+### Method: Exact matching for IPD vs IPD
 
 The function `maicChecks::exmWt.2ipd()` matches the baseline covariates from the two IPD, and assigns a weight to each patient in the two studies. The algorithm treats matching as a constrained optimization problem Constrained optimization is a purely algebraic technique and solves the convex optimization problem in a finite number of steps. In other words, the method does not require numerical approximation.
 
@@ -107,6 +113,7 @@ The result `x` is a list of three objects: `ipd1`, `ipd2`, and `wtd.summ`. The f
 
 The third object `wtd.summ` contains the effective sample sizes (ESS) for the two studies, and the weighted means of the variables used in matching.
 
+
 ## Matching Adjusted Indirect Comparison (MAIC)
 
 This method is used when IPD is available for one study but only AD is available for the other.
@@ -130,7 +137,7 @@ Movitation and methods for checking whether MAIC are described in [Glimm and Yau
 
 The simulated datasets presented in Section 2 of [Glimm and Yau (2022)](#reference) are used here to illustrate syntax. These datasets are also included in the package.
 
-A couple of simple examples:
+A couple simple examples:
 
 ``` r
 require(maicChecks)

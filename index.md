@@ -52,23 +52,13 @@ In both situations, one study can be considered a "target" population, and the o
 
 Exact matching should be used when IPD are available from both studies. It is an alternative to propensity score matching. The method ensures that after matching, the weighted means of the baseline covariates between the two studies are exactly the same. Details on methodology can be found in [Glimm & Yau (2025)](#reference).
 
-### Methods
-
-#### Linear check
+### Method: Linear check
 
 The function `maicChecks::exmLP.2ipd()` checks if there is an overlap between the two IPD. If yes, matching of baseline covariates can be performed. In practice, there is almost always an overlap between the two IPD. 
 
-#### Exact matching
+#### Usage and example
 
-The function `maicChecks::exmWt.2ipd()` matches the baseline covariates from the two IPD, and assigns a weight to each patient in the two studies. The algorithm treats matching as a constrained optimization problem Constrained optimization is a purely algebraic technique and solves the convex optimization problem in a finite number of steps. In other words, the method does not require numerical approximation.
-
-Although the weighted means are the same for the two studies after matching, it can happen that in one of the covariates used in matching it is not between the two observed means. To avoid this, an additional constraint can be added to force the weighted means to be always between the observed means. Naturally, with an additional constraint, the likelihood of a non-existing solution increases.
-
-(Note that `maicChecks::exmLP.2ipd()` which checks for feasibility of a match uses linear programming. Hence, it can happen that the check thinks it's fine to go ahead with the matching, but `maicChecks::exmWt.2ipd()` yields no solution.)
-
-### Usage and examples
-
-Summary statistics, observed and weight, of dataset `sim110` are presented in Table 4 of [Glimm & Yau (2025)](#reference). It is included in the package.
+Included in the package is data set `sim110`. The summary statistics, observed and weight, of the dataset are presented in Table 4 of [Glimm & Yau (2025)](#reference). 
 
 ```r
 require(maicChecks)
@@ -84,10 +74,19 @@ exmLP.2ipd(ipd1 = ipd1, ipd2 = ipd2,
            cat_vars_to_01 = paste0('X', 1:3), 
            mean.constrained = TRUE)
 ```
-
 The check returns 0, indicating a solution should exists. Note that by default the additional constraint is set to false (`mean.constrained = FALSE`). In this example, it is added to the check (`mean.constrained = TRUE`)
 
-To perform the match with the additional constraint:
+### Method: Exact matching
+
+The function `maicChecks::exmWt.2ipd()` matches the baseline covariates from the two IPD, and assigns a weight to each patient in the two studies. The algorithm treats matching as a constrained optimization problem Constrained optimization is a purely algebraic technique and solves the convex optimization problem in a finite number of steps. In other words, the method does not require numerical approximation.
+
+Although the weighted means are the same for the two studies after matching, it can happen that in one of the covariates used in matching it is not between the two observed means. To avoid this, an additional constraint can be added to force the weighted means to be always between the observed means. Naturally, with an additional constraint, the likelihood of a non-existing solution increases.
+
+(Note that `maicChecks::exmLP.2ipd()` which checks for feasibility of a match uses linear programming. Hence, it can happen that the check thinks it's fine to go ahead with the matching, but `maicChecks::exmWt.2ipd()` yields no solution.)
+
+#### Usage and example
+
+The following code perform the matching with the additional constraint. To Perform the matching without it, leave `mean.constrained = FALSE` as is the default.
 
 ```r
 x <- exmWt.2ipd(ipd1 = ipd1, ipd2 = ipd2, 
@@ -110,6 +109,8 @@ The third object `wtd.summ` contains the effective sample sizes (ESS) for the tw
 
 ## Matching Adjusted Indirect Comparison (MAIC)
 
+This method is used when IPD is available for one study but only AD is available for the other.
+
 The initial package focuses on the following two areas of methods related to MAIC:
 
 1.   Checking feasibility of conducting MAIC
@@ -119,13 +120,17 @@ The initial package focuses on the following two areas of methods related to MAI
 
 ### Method: checking feasibility of conducting MAIC
 
-Movitation and methods for checking whether MAIC can [Glimm and Yau (2022)](#reference)
+Movitation and methods for checking whether MAIC are described in [Glimm and Yau (2022)](#reference). The three methods implemented are summarized below:
 
 -   **Convex Hull Check**: Checks if the AD lies within the convex hull of the IPD; if yes, then it is guaranteed that a unique solution for MAIC weights can be found. This method uses linear programming to determine if the AD is within the convex hull of the IPD, ensuring numerical compatibility for MAIC.
 -   **Principal Component Analysis (PCA)**: Provides a visual assessment of the AD's position relative to the IPD in a multi-dimensional space. PCA is used to visualize the AD's position relative to the IPD, providing a graphical representation of data overlap.
 -   **Mahalanobis Distance and Hotelling's T² Test**: Tests whether matching IPD to AD is necessary by assessing the similarity of their distributions. These statistical tests assess the similarity between IPD and AD, determining if matching is necessary.
 
-### Usage and examples
+#### Usage and examples
+
+The simulated datasets presented in Section 2 of [Glimm and Yau (2022)](#reference) are used here to illustrate syntax. These datasets are also included in the package.
+
+A couple of simple examples:
 
 ``` r
 require(maicChecks)
@@ -134,15 +139,19 @@ require(maicChecks)
 # eAD[3,] is the scenario C in the reference paper,
 # i.e. when AD is outside IPD convex hull
 
+print(eAD)
+head(eIPD) ## the IPD dataset
+dim(eIPD)
+
 # Perform Convex Hull check
 maicLP(eIPD, eAD[1,2:3])
 maicLP(eIPD, eAD[3,2:3])
 
 # Visualize data using PCA
 a1 <- maicPCA(eIPD, eAD[1,2:3])
-a1 ## the dot plots of PC's for IPD and AD
+print(a1) ## the dot plots of PC's for IPD and AD
 a3 <- maicPCA(eIPD, eAD[3,2:3])
-a3 ## the dot plots of PC's for IPD and AD
+print(a3) ## the dot plots of PC's for IPD and AD
 
 # Conduct Mahalanobis Distance test
 md <- maicMD(eIPD, eAD[1,2:3])
@@ -150,10 +159,128 @@ md ## a dot-plot of IPD Mahalanobis distances along with AD in the same metric.
 
 # Conduct Hotelling's T² test
 maicT2Test(eIPD, eAD[1,2:3])
+```
 
+Two points to note:  
+1.   It is important that all variables are in the same orders in IPD and in AD. The functions assume this is the case but do not check it.
+2.   If there are categorical variables (e.g., region, disease status, or median or quantiles of a continuous variable) to be used in matching, they need to be first convert to 0-1 indicator variables.
+
+**_Converting categorical variables before checking or matching:_**
+
+As an example, two additional variables are added in `eIPD` and `eAD[1,]` to be also used in matching: (1) patients' baseline disease risk category (low, intermediate, high), and (2) another continuous variable (y3) but instead of the mean, only median is available in AD.
+
+The new AD data based on `eAD[1,]`:
+
+``` r
+eAD.1x <- data.frame(c(eAD[1,2:3], 
+           ds.low = 0.24, ds.int = 0.58, ds.hi = 0.18, 
+           y3 = 0.1))
+print(eAD.1x)
+```
+
+Here, `y1` and `y2` are, as before, the means of two continous covariates; `ds.low`, `ds.int`, and `ds.hi` are proportions of patients in disease status categories low, intermediate, or high, respectively; and `y3` is the **median** of a continuous variable `y3`.
+
+Before `eAD.1x` can be used for checking/matching, `y3` need to be converted to the proportion of patients above (or below) the median. In this case, the proportion is obviously 50%.
+
+``` r
+eAD.1x <- eAD.1x %>% 
+  mutate(y3.med = 0.50) %>%
+  select(-y3, -ds.hi) ## remove y3 and ds.hi
+```
+
+Two new variables `ds` and `y3` are also added to the `eIPD` dataset:
+
+``` r
+eIPD.x <- data.frame(ds = sample(c('low', 'intermediate', 'high'),
+                                 size = nrow(eIPD), 
+                                 replace = TRUE),
+                     y3 = rnorm(n = nrow(eIPD), mean = 0, sd = 1.2)
+                     ) %>%
+  cbind(eIPD, .)
+##
+head(eIPD.x)
+```
+
+Beofre checking/matching can be performed, indicator variables must be created for `ds` and `y3` median:
+
+``` r
+## indicators are created for ds low and ds intermediate 
+eIPD.x <- eIPD.x %>% 
+  mutate(ds.low = ifelse(ds == 'low', 1, 0),
+         ds.int = ifelse(ds == 'intermediate', 1, 0)) %>%
+  ## y3.med is the proportion of patients in eIPD whose y3 values ...
+  ## ... are below 0.1, the median in AD study.
+  mutate(y3.med = ifelse(y3 <= 0.1, 1, 0)) %>%  
+  select(-y3, -ds) ## remove y3 and ds
+## make sure the variables are in the same order
+head(eIPD.x)
+print(eAD.1x)
+```
+
+The same syntax is used for checking for the feasibility.
+
+``` r
+# Perform Convex Hull check
+maicLP(eIPD.x, eAD.1x)
+
+# Visualize data using PCA
+a1.x <- maicPCA(eIPD.x, eAD.1x)
+print(a1.x)
+
+# Conduct Mahalanobis Distance test
+md.x <- maicMD(eIPD.x, eAD.1x)
+md.x
+
+# Conduct Hotelling's T² test
+maicT2Test(eIPD.x, eAD.1x)
+```
+
+Other than `maicMD()`, other functions (including matching, see below) do not require the indicator variables to correspond to a full-rank design matrix, i.e. with `k-1` indicators for a categorical variable with `k` levels. In other words, if `maicMD()` is not needed, it is fine to have `k` indicators for a `k` level categorical variables. 
+
+### Method: MAIC as proposed by [Signorovitch (2010)](#reference). 
+
+Details of the method can be found in the reference publication. The following snytax can be used to perform the matching.
+
+``` r
 # Estimate the MAIC weights
 m1 <- maicWt(eIPD, eAD[1,2:3])
 ```
+
+The output `m1` is a list contains results inherited from `optim()` function. The rest are related to the matching:
+
+-    `maic.wt`: a vector with weights each patient in IPD study receives after matching
+-    `maic.wt.rs`: re-scaled weights so that the sum is the total number of patients in IPD. It is recommended to use this weight.
+-    `ipd.ess`: ESS for the IPD study
+-    `ipd.wtsumm`: weighted means of the matching variables. These should be identical to the values of AD.
+
+For the datasets with categorical variables, the matching are done the same way:
+
+``` r
+## make sure the variables are in the same order
+head(eIPD.x)
+print(eAD.1x)
+
+# Estimate the MAIC weights
+m1.x <- maicWt(eIPD.x, eAD.1x)
+```
+
+### Method: MAIC by maximizing ESS as introduced in [Glimm and Yau (2022)](#reference)
+
+Details of the method can be found in the reference publication. The following snytax can be used to perform the matching.
+
+``` r
+# Estimate the MAIC weights
+me1 <- maxessWt(eIPD, eAD[1,2:3])
+
+# The example with categorical variables
+me1.x <- maxessWt(eIPD.x, eAD.1x)
+```
+
+The outputs `me1` and `me1.x` is acontain the following
+
+-    `maxess.wt`: (re-scaled) weights each patient in IPD study receives after matching. The total add up to the number of patients in IPD.
+-    `ipd.ess`: ESS for the IPD study
+-    `ipd.wtsumm`: weighted means of the matching variables. These should be identical to the values of AD.
 
 ## Reference
 

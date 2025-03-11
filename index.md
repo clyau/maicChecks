@@ -215,7 +215,7 @@ Before checking/matching can be performed, indicator variables must be created f
 eIPD.x <- eIPD.x %>% 
   mutate(ds.low = ifelse(ds == 'low', 1, 0),
          ds.int = ifelse(ds == 'intermediate', 1, 0)) %>%
-  ## y3.med is the proportion of patients in eIPD whose y3 values ...
+  ## y3.med is the indicator for whether a patient in eIPD whose y3 values ...
   ## ... are below 0.1, the median in AD study.
   mutate(y3.med = ifelse(y3 <= 0.1, 1, 0)) %>%  
   select(-y3, -ds) ## remove y3 and ds

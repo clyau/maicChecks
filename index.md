@@ -24,11 +24,11 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 **_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. It implements the following methods:
 
--   [Exact matching](#) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
+-   [Exact matching](#exact-matching) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
 
 **Version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
 
--   Matching-adjusted indirect comparison (MAIC) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
+-   Matching-adjusted indirect comparison ([MAIC]) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
 -   Various checks to assess feasibility of conducting the above two methods ([Glimm and Yau (2022)](#reference))
 
@@ -45,10 +45,10 @@ In both situations, one study can be considered a "target" population, and the o
 
 `maicChecks` is an R package that offers two different but related methods for matching baseline covariates for these two situations. The methods are:
 
-1.  Exact matching: used for IPD vs IPD and IPD vs AD 
-2.  Matching-adjusted indirect comparison: used for IPD vs AD
+1.  [Exact matching](#exact-matching-for-two-studies-both-with-ipd): used for IPD vs IPD and IPD vs AD 
+2.  [Matching-adjusted indirect comparison](#matching-adjusted-indirect-comparison-maic): used for IPD vs AD
 
-## Exact matching
+## Exact matching for two studies both with IPD
 
 Exact matching should be used when IPD are available from both studies. It is an alternative to propensity score matching. The method ensures that after matching, the weighted means of the baseline covariates between the two studies are exactly the same. Details on methodology can be found in [Glimm & Yau (2025)](#reference).
 

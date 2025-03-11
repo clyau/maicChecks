@@ -22,11 +22,11 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ## Version history
 
-**_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. It implements the following methods:
+**_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. The following method is added:
 
 -   [Exact matching](#exact-matching) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
 
-**Version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
+Initial **Version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
 
 -   Matching-adjusted indirect comparison ([MAIC]) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     

@@ -22,15 +22,15 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ## Version history
 
+**_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. It implements the following methods:
+
+-   [Exact matching](#) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
+
 **Version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
 
 -   Matching-adjusted indirect comparison (MAIC) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   Exact matching by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
 -   Various checks to assess feasibility of conducting the above two methods ([Glimm and Yau (2022)](#reference))
-
-**Version 0.2.0** was released on CRAN on 3 March, 2025. It implements the following methods:
-
--   Exact matching by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
 
 ## Overview
 
@@ -108,10 +108,18 @@ The result `x` is a list of three objects: `ipd1`, `ipd2`, and `wtd.summ`. The f
 
 The third object `wtd.summ` contains the effective sample sizes (ESS) for the two studies, and the weighted means of the variables used in matching.
 
-## MAIC
+## Matching Adjusted Indirect Comparison (MAIC)
 
+The initial package focuses on the following two areas of methods related to MAIC:
 
-### Methods
+1.   Checking feasibility of conducting MAIC
+2.   Implementing MAIC:    
+   (a)   as originally proposed in [Signorovitch (2010)](#reference)    
+   (b)   by maximizing ESS as proposed in [Glimm and Yau (2022)](#reference)    
+
+### Method: checking feasibility of conducting MAIC
+
+Movitation and methods for checking whether MAIC can [Glimm and Yau (2022)](#reference)
 
 -   **Convex Hull Check**: Checks if the AD lies within the convex hull of the IPD; if yes, then it is guaranteed that a unique solution for MAIC weights can be found. This method uses linear programming to determine if the AD is within the convex hull of the IPD, ensuring numerical compatibility for MAIC.
 -   **Principal Component Analysis (PCA)**: Provides a visual assessment of the AD's position relative to the IPD in a multi-dimensional space. PCA is used to visualize the AD's position relative to the IPD, providing a graphical representation of data overlap.

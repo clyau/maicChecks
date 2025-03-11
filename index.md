@@ -51,7 +51,7 @@ In both situations, one study can be considered a "target" population, and the o
 
 `maicChecks` is an R package that offers two different but related methods for matching baseline covariates for these two situations. The methods are:
 
-1.  [Exact matching](#exact-matching): used for [IPD vs IPD]  
+1.  [Exact matching](#exact-matching): used for IPD vs IPD   
 2.  [MAIC](#matching-adjusted-indirect-comparison-maic): used for IPD vs AD
 
 ## Exact matching
@@ -208,7 +208,7 @@ eIPD.x <- data.frame(ds = sample(c('low', 'intermediate', 'high'),
 head(eIPD.x)
 ```
 
-Beofre checking/matching can be performed, indicator variables must be created for `ds` and `y3` median:
+Before checking/matching can be performed, indicator variables must be created for `ds` and `y3` median:
 
 ``` r
 ## indicators are created for ds low and ds intermediate 
@@ -242,7 +242,7 @@ md.x
 maicT2Test(eIPD.x, eAD.1x)
 ```
 
-Other than `maicMD()`, other functions (including matching, see below) do not require the indicator variables to correspond to a full-rank design matrix, i.e. with `k-1` indicators for a categorical variable with `k` levels. In other words, if `maicMD()` is not needed, it is fine to have `k` indicators for a `k` level categorical variables. 
+Other than `maicMD()`, other functions (including matching, see below) do not require the indicator variables to correspond to a full-rank design matrix, i.e. with `k-1` indicators for a categorical variable with `k` levels. In other words, if `maicMD()` is not needed, it is fine to have `k` indicators for a `k`-level categorical variable. 
 
 ### Method: MAIC as proposed by [Signorovitch (2010)](#reference). 
 
@@ -283,7 +283,7 @@ me1 <- maxessWt(eIPD, eAD[1,2:3])
 me1.x <- maxessWt(eIPD.x, eAD.1x)
 ```
 
-The outputs `me1` and `me1.x` is acontain the following
+The outputs `me1` and `me1.x` contain the following:
 
 -    `maxess.wt`: (re-scaled) weights each patient in IPD study receives after matching. The total add up to the number of patients in IPD.
 -    `ipd.ess`: ESS for the IPD study

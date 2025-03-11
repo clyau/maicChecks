@@ -32,7 +32,7 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 Initial **version 0.1.2** was released on CRAN on 4 January, 2022. It implements the following methods:
 
--   Matching-adjusted indirect comparison ([MAIC](#matching-adjusted-indirect-comparison-maic)) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
+-   Matching-adjusted indirect comparison (MAIC) for comparing study with patient level data to study with only aggregated data ([Signorovitch (2010)](#reference))    
 -   MAIC by maximizing effective sample size (ESS) for comparing study with patient level data to study with only aggregated data ([Glimm and Yau (2022)](#reference))     
 -   Various checks to assess feasibility of conducting the above two methods ([Glimm and Yau (2022)](#reference))
 
@@ -52,7 +52,7 @@ In both situations, one study can be considered a "target" population, and the o
 `maicChecks` is an R package that offers two different but related methods for matching baseline covariates for these two situations. The methods are:
 
 1.  [Exact matching](#exact-matching): used for [IPD vs IPD]  
-2.  [Matching-adjusted indirect comparison](#matching-adjusted-indirect-comparison-maic): used for IPD vs AD
+2.  [MAIC](#matching-adjusted-indirect-comparison-maic): used for IPD vs AD
 
 ## Exact matching
 
@@ -114,7 +114,7 @@ The result `x` is a list of three objects: `ipd1`, `ipd2`, and `wtd.summ`. The f
 The third object `wtd.summ` contains the effective sample sizes (ESS) for the two studies, and the weighted means of the variables used in matching.
 
 
-## Matching Adjusted Indirect Comparison (MAIC)
+## Matching-Adjusted Indirect Comparison (MAIC)
 
 This method is used when IPD is available for one study but only AD is available for the other.
 

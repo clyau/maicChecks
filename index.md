@@ -111,7 +111,7 @@ The third object `wtd.summ` contains the effective sample sizes (ESS) for the tw
 
 This method is used when IPD is available for one study but only AD is available for the other.
 
-The initial package focuses on the following two areas of methods related to MAIC:
+The package focuses on the following two areas of methods related to MAIC:
 
 1.   Checking feasibility of conducting MAIC
 2.   Implementing MAIC:    

@@ -250,10 +250,12 @@ Details of the method can be found in the reference publication. The following s
 
 ``` r
 # Estimate the MAIC weights
-m1 <- maicWt(eIPD, eAD[1,2:3])
+m1 <- maicWt(eIPD, eAD[1,2:3]) ## default max.it = 25
 ```
 
-The output `m1` is a list contains results inherited from `optim()` function. The rest are related to the matching:
+The output `m1` is a list contains results inherited from `optim()` function. Although in most cases the default `max.it = 25` is sufficient when the checks have passed, **_it is still important to first check whether convergence is achieved:_** if `m1$optim.out$convergence = 1` then `optim()` has converged; if `m1$optim.out$convergence = 0` then no, and `max.it` needs to be increased.
+
+The rest are related to the matching:
 
 -    `maic.wt`: a vector with weights each patient in IPD study receives after matching
 -    `maic.wt.rs`: re-scaled weights so that the sum is the total number of patients in IPD. It is recommended to use this weight.

@@ -113,6 +113,11 @@ The result `x` is a list of three objects: `ipd1`, `ipd2`, and `wtd.summ`. The f
 
 The third object `wtd.summ` contains the effective sample sizes (ESS) for the two studies, and the weighted means of the variables used in matching.
 
+The weights for each individual in the output can be used directly for desired analysis comparing the outcomes of the two studies.
+
+#### Note on matching one IPD onto the other
+
+In the above example, the two IPD's are matched onto a common (pooled) population. However, if one IPD represents the target population and should be matched onto, then the summary statistics of the baseline covariates can be first calculated for this IPD. Subsequently, the MAIC approach described in the next section can be applied. 
 
 ## Matching-Adjusted Indirect Comparison (MAIC)
 

@@ -117,7 +117,7 @@ The weights for each individual in the output can be used directly for desired a
 
 #### Note on matching one IPD onto the other
 
-In the above example, the two IPD's are matched onto a common (pooled) population. However, if one IPD represents the target population and should be matched onto, then the summary statistics of the baseline covariates can be first calculated for this IPD. Subsequently, the MAIC approach described in the next section can be applied. 
+In the above example, the two IPD's are matched onto a common (pooled) population. However, if one IPD represents the target population and should be matched onto, then the summary statistics of the baseline covariates can be first calculated for this IPD. This is equivalent to giving a weight of 1 to every individual in the target study. Subsequently, the MAIC approach described in the next section can be applied. 
 
 ## Matching-Adjusted Indirect Comparison (MAIC)
 

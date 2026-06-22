@@ -4,9 +4,9 @@
 \name{maicChecks-package}
 \alias{maicChecks}
 \alias{maicChecks-package}
-\title{maicChecks: Exact Matching (ExM) and Matching-Adjusted Indirect Comparison (MAIC)}
+\title{maicChecks: Exact Matching and Matching-Adjusted Indirect Comparison (MAIC)}
 \description{
-The second version (0.2.0) contains implementation for exact matching which is an alternative to propensity score matching (see Glimm & Yau (2025)). The initial version (0.1.2) contains a collection of easy-to-implement tools for checking whether a MAIC can be conducted, as well as an alternative way of calculating weights (see Glimm & Yau (2021) \doi{10.1002/pst.2210}.)
+The current version (0.3.0) streamlines the underlying code, adds a feasibility check to 'maicWt' and 'maxessWt', extends 'exmWt.2ipd' with options 'target.ipd' and 'method' for one-sided MAIC weighting between two IPDs, and adds 'wtTrtDiff' for the weighted treatment-effect difference with a Wald confidence interval based on Section 5 of Glimm & Yau (2026). The second version (0.2.0) contains implementation for exact matching which is an alternative to propensity score matching (see Glimm & Yau (2026) \doi{10.1080/19466315.2025.2507378}). The initial version (0.1.2) contains a collection of easy-to-implement tools for checking whether a MAIC can be conducted, as well as an alternative way of calculating weights (see Glimm & Yau (2022) \doi{10.1002/pst.2210}.)
 }
 \author{
 \strong{Maintainer}: Lillian Yau \email{maicChecks@gmail.com}

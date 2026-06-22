@@ -7,43 +7,45 @@
 #' @return
 #' \item{lp.check }{0 = AD is inside IPD, and MAIC can be conducted; 2 = otherwise}
 #'
-#' @references Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+#' @references Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 #'
 #' @export maicLP
 #'
 #' @examples
+#' ## eIPD now contains response columns (r.cont, r.bin) in addition to the
+#' ## matching columns y1, y2. Subset to the matching columns explicitly.
+#'
 #' ## eAD[1,] is the scenario A in the reference paper,
 #' ## i.e. when AD is within IPD convex hull
-#' maicLP(eIPD, eAD[1,2:3])
+#' maicLP(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 #'
 #' ## eAD[3,] is the scenario C in the reference paper,
 #' ## i.e. when AD is outside IPD convex hull
-#' maicLP(eIPD, eAD[3,2:3])
+#' maicLP(eIPD[, c('y1', 'y2')], eAD[3, c('y1', 'y2')])
 maicLP <- function(ipd, ad) {
   ##
   ## assume ipd is a dataframe with n row and p coln
   ## ... n = number of subjects, p = number of matching variables
-  ## assume ad is a dataframe with 1 row and p coln
+  ## assume ad is a dataframe / numeric vector with p elements
   ##
-  ## constrain the sum of the weights to 1
-  ones  <- rep(1, nrow(ipd))
-  ipd   <- data.frame(cbind(ipd, ones))
-  p     <- ncol(ad) ## p = number of variables to match
-  ad    <- data.frame(c(ad, 1))
-  ## the ipd serve as the constraint
-  f.con <- as.matrix(t(ipd))
-  ## a dummy object to be optimized
-  f.obj <- rep(0.5, ncol(f.con))
-  ## the right hand side is ad
-  f.rhs <- ad
-  ## direction of constraint
-  f.dir <- rep("=", p+1)
-  ## solve
-  lp.check <- lpSolve::lp (direction = "max", 
-                           objective.in = f.obj, 
-                           const.mat = f.con, 
-                           const.dir = f.dir, 
-                           const.rhs = f.rhs)$status
-  ##
+  ipd <- as.matrix(ipd)
+  ad  <- as.numeric(unlist(ad))
+  n   <- nrow(ipd)
+  p   <- ncol(ipd)
+  if (length(ad) != p)
+    stop('`ad` must have the same number of variables as `ipd` (got ',
+         length(ad), ' vs ', p, ').', call. = FALSE)
+
+  ## stack a row of 1's to enforce sum(w) = 1
+  f.con    <- rbind(t(ipd), rep(1, n))
+  f.obj    <- rep(0.5, n)               ## dummy objective
+  f.rhs    <- c(ad, 1)
+  f.dir    <- rep('=', p + 1)
+
+  lp.check <- lpSolve::lp(direction    = 'max',
+                          objective.in = f.obj,
+                          const.mat    = f.con,
+                          const.dir    = f.dir,
+                          const.rhs    = f.rhs)$status
   return(list(lp.check = lp.check))
 }

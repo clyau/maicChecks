@@ -4,3 +4,5 @@
 .Ruserdata
 docs
 .DS_Store
+flir/cache_file_state.rds
+.vscode/

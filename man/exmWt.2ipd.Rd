@@ -9,38 +9,87 @@ exmWt.2ipd(
   ipd2,
   vars_to_match = NULL,
   cat_vars_to_01 = NULL,
-  mean.constrained = FALSE
+  mean.constrained = FALSE,
+  target.ipd = NULL,
+  method = c("maicWt", "maxessWt")
 )
 }
 \arguments{
-\item{ipd1}{a dataframe with n row and p column, where n is number of subjects and p is the number of variables used in matching.}
+\item{ipd1}{a dataframe with n1 row and p column.}
 
-\item{ipd2}{the other IPD with the same number of columns}
+\item{ipd2}{a dataframe with n2 row and p column.}
 
-\item{vars_to_match}{variables used for matching. if NULL, use all variables.}
+\item{vars_to_match}{variables used for matching. If \code{NULL} (default), all variables shared by \code{ipd1} and \code{ipd2} are used.}
 
-\item{cat_vars_to_01}{a list of variable names for the categorical variables that need to be converted to indicator variables.}
+\item{cat_vars_to_01}{a vector of variable names for the categorical variables that need to be converted to indicator variables. If the dummies are already present in the data, leave as \code{NULL}.}
 
-\item{mean.constrained}{whether to restrict the weighted means to be within the ranges of observed means. Default is FALSE. When it is TRUE, there is a higher chance of not having a solution.}
+\item{mean.constrained}{whether to restrict the weighted means to be within the ranges of observed means. Only used when \code{target.ipd = NULL}. Default is \code{FALSE}. When \code{TRUE}, the QP is more likely to have no solution.}
+
+\item{target.ipd}{one of \code{NULL} (default), \code{'ipd1'}, or \code{'ipd2'}. When \code{NULL}, the default method (Glimm & Yau, 2026) is used. When \code{'ipd1'}, the means of \code{ipd1} are used as the AD and \code{ipd2} is weighted via \code{method}; vice versa for \code{'ipd2'}.}
+
+\item{method}{one of \code{'maicWt'} (default) or \code{'maxessWt'}. Ignored when \code{target.ipd = NULL}.}
 }
 \value{
-\item{ipd1 }{re-scaled weights of the exact matching by maximizing ESS for IPD 1, and the input IPD 1 data with categorical variables converted to 0-1 indicators}
-\item{ipd2 }{re-scaled weights of the exact matching by maximizing ESS for IPD 2, and the input IPD 2 data with categorical variables converted to 0-1 indicators}
-\item{wtd.summ }{ESS for IPD 1, ESS for IPD 2, and weighted means of the matching variables}
+A list with the following slots:
+\item{ipd1}{re-scaled exact-matching weights for IPD 1 (column \code{exm.wts}) together with the IPD 1 data, categorical variables converted to 0/1 indicators. \code{NA} if the matching is infeasible.}
+\item{ipd2}{same for IPD 2.}
+\item{wtd.summ}{a 1-row matrix with ESS for IPD 1, ESS for IPD 2, and the weighted means of the matching variables.}
+\item{lp.check}{the \code{\link{exmLP.2ipd}} (or \code{\link{maicLP}}) feasibility status: \code{0} = feasible, \code{2} = infeasible.}
+\item{target.ipd}{the value of \code{target.ipd} that was used.}
+\item{method}{the weighting method used: \code{'qp'} for the default Glimm & Yau (2026) method, otherwise \code{'maicWt'} or \code{'maxessWt'}.}
 }
 \description{
-Exact matching for two IPD's
+Computes exact-matching weights for two individual-patient datasets
+(IPDs). Two modes are supported:
+\itemize{
+  \item \strong{Default (\code{target.ipd = NULL})} -- the method described
+    in Glimm & Yau (2026): both IPDs are reweighted simultaneously so that
+    their weighted covariate means match each other and the joint
+    effective sample size (ESS) is maximised. The optimisation is solved
+    via \code{\link[quadprog]{solve.QP}}.
+  \item \strong{One-sided MAIC (\code{target.ipd = 'ipd1'} or
+    \code{'ipd2'})} -- the chosen IPD plays the role of the aggregate
+    reference: its column means (after dummy expansion) are used as the
+    AD, and the other IPD is weighted with either \code{\link{maicWt}}
+    (default) or \code{\link{maxessWt}}. The target IPD is returned with
+    uniform weights of 1.
+}
+In all modes the function first calls \code{\link{exmLP.2ipd}} as a
+feasibility gate. If matching is infeasible, a \code{message()} is
+emitted and \code{NA} weights are returned together with
+\code{lp.check = 2}, instead of letting the QP / optimiser fail.
 }
 \details{
-If dummy variables are already created for the categorical variables in the data set, and are present in \code{ipd1} and \code{ipd2}, then \code{cat_vars_to_01} should be left as NULL.
+If dummy variables are already created for the categorical variables in the data set, and are present in \code{ipd1} and \code{ipd2}, then \code{cat_vars_to_01} should be left as \code{NULL}.
 }
 \examples{
 \dontrun{
-ipd1 <- sim110[sim110$study == 'IPD A',]
-ipd2 <- sim110[sim110$study == 'IPD B',]
-x <- exmWt.2ipd(ipd1, ipd2, vars_to_match = paste0('X', 1:5), 
-cat_vars_to_01 = paste0('X', 1:3), mean.constrained = FALSE) 
+ipd1 <- sim110[sim110$study == 'IPD A', ]
+ipd2 <- sim110[sim110$study == 'IPD B', ]
+
+## (1) Default: both IPDs reweighted simultaneously (Glimm & Yau, 2026)
+x0 <- exmWt.2ipd(ipd1, ipd2,
+                 vars_to_match    = paste0('X', 1:5),
+                 cat_vars_to_01   = paste0('X', 1:3),
+                 mean.constrained = FALSE)
+
+## (2) One-sided MAIC: target = IPD A, weight IPD B via maicWt
+x1 <- exmWt.2ipd(ipd1, ipd2,
+                 vars_to_match  = paste0('X', 1:5),
+                 cat_vars_to_01 = paste0('X', 1:3),
+                 target.ipd     = 'ipd1',
+                 method         = 'maicWt')
+
+## (3) One-sided MAIC: target = IPD B, weight IPD A via maxessWt
+x2 <- exmWt.2ipd(ipd1, ipd2,
+                 vars_to_match  = paste0('X', 1:5),
+                 cat_vars_to_01 = paste0('X', 1:3),
+                 target.ipd     = 'ipd2',
+                 method         = 'maxessWt')
 }
+}
+\references{
+Glimm E and Yau L. (2026). 'Exact matching as an alternative to propensity score matching.' \emph{Statistics in Biopharmaceutical Research}, 18(1):106-116. \doi{10.1080/19466315.2025.2507378}.
 }
 \author{
 Lillian Yau

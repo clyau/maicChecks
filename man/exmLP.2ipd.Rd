@@ -24,7 +24,7 @@ exmLP.2ipd(
 \item{mean.constrained}{whether to restrict the weighted means to be within the ranges of observed means. Default is FALSE. When it is TRUE, there is a higher chance of not having a solution.}
 }
 \value{
-\item{lp.check}{0 = OS can be conducted; 2 = OS cannot be conducted}
+\item{lp.check}{0 = exact matching is feasible; 2 = otherwise (no solution; see \code{\link[lpSolve]{lp}} status codes).}
 }
 \description{
 Checks whether two IPD datasets can be matched with lpSolve::lp
@@ -34,11 +34,16 @@ If dummy variables are already created for the categorical variables in the data
 }
 \examples{
 \dontrun{
-ipd1 <- sim110[sim110$study == 'IPD A',]
-ipd2 <- sim110[sim110$study == 'IPD B',]
-x <- exmLP.2ipd(ipd1, ipd2, vars_to_match = paste0('X', 1:5), 
-cat_vars_to_01 = paste0('X', 1:3), mean.constrained = FALSE) 
+ipd1 <- sim110[sim110$study == 'IPD A', ]
+ipd2 <- sim110[sim110$study == 'IPD B', ]
+x <- exmLP.2ipd(ipd1, ipd2,
+                vars_to_match    = paste0('X', 1:5),
+                cat_vars_to_01   = paste0('X', 1:3),
+                mean.constrained = FALSE)
 }
+}
+\references{
+Glimm E and Yau L. (2026). 'Exact matching as an alternative to propensity score matching.' \emph{Statistics in Biopharmaceutical Research}, 18(1):106-116. \doi{10.1080/19466315.2025.2507378}.
 }
 \author{
 Lillian Yau

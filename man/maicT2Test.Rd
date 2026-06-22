@@ -24,10 +24,11 @@ Hotelling's T-square test to check whether maic is needed
 When \code{n.ad} is not Inf, the covariance matrix is adjusted by the factor n.ad/(n.ipd + n.ad)), where n.ipd is nrow(ipd), the sample size of \code{ipd}.
 }
 \examples{
+## eIPD contains response columns; subset to matching columns y1, y2.
 ## eAD[1,] is the scenario A in the reference paper,
 ## i.e. when AD is perfectly within IPD
-maicT2Test(eIPD, eAD[1,2:3])
+maicT2Test(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 }
 \references{
-Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 }

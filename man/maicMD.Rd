@@ -26,12 +26,13 @@ When AD does not have the largest Mahalanobis distance, in the original scale AD
 }
 \examples{
 \dontrun{
+## eIPD contains response columns; subset to matching columns y1, y2.
 ## eAD[1,] is the scenario A in the reference paper,
 ## i.e. when AD is perfectly within IPD
-md <- maicMD(eIPD, eAD[1,2:3])
+md <- maicMD(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 md ## a dot-plot of IPD Mahalanobis distances along with AD in the same metric.
 }
 }
 \references{
-Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 }

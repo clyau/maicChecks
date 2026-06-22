@@ -3,3 +3,9 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^flir$
+^smoke.*\.R$
+^tmp_.*$
+^\.github$
+^\.lintr$
+^\.vscode$

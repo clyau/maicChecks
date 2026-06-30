@@ -11,17 +11,18 @@
 #'
 #' @export maicPCA
 #'
-#' @references Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+#' @references Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 #' @examples
 #' \dontrun{
+#' ## eIPD contains response columns; subset to matching columns y1, y2.
 #' ## eAD[1,] is the scenario A in the reference paper,
 #' ## i.e. when AD is perfectly within IPD
-#' a1 <- maicPCA(eIPD, eAD[1,2:3])
+#' a1 <- maicPCA(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 #' a1 ## the dot plots of PC's for IPD and AD
 #'
 #' ## eAD[3,] is the scenario C in the reference paper,
 #' ## i.e. when AD is outside IPD
-#' a3 <- maicPCA(eIPD, eAD[3,2:3])
+#' a3 <- maicPCA(eIPD[, c('y1', 'y2')], eAD[3, c('y1', 'y2')])
 #' a3 ## the dot plots of PC's for IPD and AD
 #' }
 maicPCA <- function (ipd, ad) {
@@ -61,10 +62,14 @@ maicPCA <- function (ipd, ad) {
   ##
   ## create plot
   ##
-  pc.ipd.long <- tidyr::gather(as.data.frame(pc.ipd), pc, x)
-  pc.ipd.long$pc.o <- rep(1:dim(ipd)[2], each = dim(ipd)[1])
+  pc.ipd.df   <- as.data.frame(pc.ipd)
+  pc.ipd.long <- as.data.frame(tidyr::pivot_longer(pc.ipd.df,
+                                                   cols      = names(pc.ipd.df),
+                                                   names_to  = 'pc',
+                                                   values_to = 'x'))
+  pc.ipd.long$pc.o <- rep(seq_len(ncol(ipd)), each = nrow(ipd))
   ## ad in pca scale
-  pc.ad$pc.o <- 1:nrow(pc.ad)
+  pc.ad$pc.o <- seq_len(nrow(pc.ad))
   colnames(pc.ad) <- c("w", "pc.o")
   ##
   ## plot
@@ -72,33 +77,32 @@ maicPCA <- function (ipd, ad) {
   pc.dplot <-
     ggplot(pc.ipd.long,
            aes(x, factor(pc.o))) +
-    geom_point(shape = 1, color = "grey60", size = 2) +
+    geom_point(shape = 1, color = 'grey60', size = 2) +
     ## vertical line to go thru 0, i.e. ipd centers in pc coordinates
     geom_vline(xintercept = 0,
-               color = "gray25",
-               size = .5,
-               alpha = .5,
+               color = 'gray25',
+               linewidth = 0.5,
+               alpha = 0.5,
                linetype = 'dashed') +
     geom_point(data = pc.ad,
                mapping = aes(w, factor(pc.o)),
-               color = "black",
+               color = 'black',
                size = 2.5,
                shape = 17) +
     theme_bw(base_size = 10) +
     scale_y_discrete(breaks = 1:max(pc.ipd.long$pc.o),
-                     labels = paste0("PC", 1:max(pc.ipd.long$pc.o))) +
-    ylab("") +
+                     labels = paste0('PC', 1:max(pc.ipd.long$pc.o))) +
+    ylab('') +
     geom_hline(yintercept = seq(1.5,
                                 max(pc.ipd.long$pc.o),
                                 by = 1),
-               color = "gray",
-               size = 0.5,
-               alpha = 0.5
-    ) +
-    guides(size = guide_legend("# of obs.")) +
+               color = 'gray',
+               linewidth = 0.5,
+               alpha = 0.5) +
+    guides(size = guide_legend('# of obs.')) +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor.x = element_blank()) +
-    xlab("IPD PC values")
+    xlab('IPD PC values')
   ##
   return(list(pc.dplot = pc.dplot,
               pc.check = pc.check)

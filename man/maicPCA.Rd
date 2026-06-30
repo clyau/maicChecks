@@ -24,17 +24,18 @@ When AD is within the IPD PC ranges, AD can still be outside the IPD convex hull
 }
 \examples{
 \dontrun{
+## eIPD contains response columns; subset to matching columns y1, y2.
 ## eAD[1,] is the scenario A in the reference paper,
 ## i.e. when AD is perfectly within IPD
-a1 <- maicPCA(eIPD, eAD[1,2:3])
+a1 <- maicPCA(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 a1 ## the dot plots of PC's for IPD and AD
 
 ## eAD[3,] is the scenario C in the reference paper,
 ## i.e. when AD is outside IPD
-a3 <- maicPCA(eIPD, eAD[3,2:3])
+a3 <- maicPCA(eIPD[, c('y1', 'y2')], eAD[3, c('y1', 'y2')])
 a3 ## the dot plots of PC's for IPD and AD
 }
 }
 \references{
-Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 }

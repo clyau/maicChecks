@@ -17,15 +17,17 @@ maxessWt(ipd, ad)
 \item{ipd.wtsumm}{weighted summary statistics of the matching variables after matching. they should be identical to the input AD when AD is within the IPD convex hull.}
 }
 \description{
-Estimates an alternative set of weights which maximizes effective sample size (ESS) for a given set of variates used in the matching. Should only be used after it is ascertained that AD is indeed within the convex hull of IPD.
+Estimates an alternative set of weights which maximizes effective sample size (ESS) for a given set of variates used in the matching. The function first calls \code{\link{maicLP}} as a feasibility gate; if \code{ad} is not within the convex hull of \code{ipd} the function stops with an error message.
 }
 \details{
 The weights maximize the ESS subject to the set of baseline covariates used in the matching.
 }
 \examples{
+## eIPD contains response columns (r.cont, r.bin) in addition to the
+## matching columns y1, y2. Subset to the matching columns explicitly.
 ## eAD[1,] is scenario A in the reference manuscript
-m0 <- maxessWt(eIPD, eAD[1,2:3])
+m0 <- maxessWt(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 }
 \references{
-Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 }

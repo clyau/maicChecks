@@ -22,11 +22,13 @@ The main code are taken from Philippo (2016). It returns the following:
 \item{ipd.wtsumm}{weighted summary statistics of the matching variables after matching. they should be identical to the input AD when AD is within the IPD convex hull.}
 }
 \description{
-Estimates the MAIC weights for each individual in the IPD. Should only be used after it is ascertained that AD is indeed within the convex hull of IPD.
+Estimates the MAIC weights for each individual in the IPD. The function first calls \code{\link{maicLP}} as a feasibility gate; if \code{ad} is not within the convex hull of \code{ipd} the function stops with an informative error rather than letting \code{optim()} fail silently.
 }
 \examples{
+## eIPD contains response columns (r.cont, r.bin) in addition to the
+## matching columns y1, y2. Subset to the matching columns explicitly.
 ## eAD[1,] is scenario A in the reference manuscript
-m1 <- maicWt(eIPD, eAD[1,2:3])
+m1 <- maicWt(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 }
 \references{
 Phillippo DM, Ades AE, Dias S, et al. (2016). Methods for population-adjusted indirect comparisons in submissions to NICE. NICE Decision Support Unit Technical Support Document 18.

@@ -1,13 +1,23 @@
 #' three AD scenarios
 #'
-#' Three artificial scenarios serves as the ad cases.
-#' This is used in Glimm & Yau (2021)
+#' Three artificial aggregate-data (AD) scenarios used in Glimm & Yau
+#' (2022). Columns \code{y1} and \code{y2} are the \strong{matching
+#' covariate means} from the AD study.
+#' Columns \code{r.cont.mean}, \code{r.cont.sd}, \code{r.cont.n},
+#' \code{r.bin.p}, and \code{r.bin.n} are \strong{response summary}
+#' statistics added in v0.3.0 for use with \code{\link{wtTrtDiff}}; they
+#' are the same across the three scenarios.
 #'
 #' @format
 #' \describe{
-#' \item{scen}{corresponds to scenarios A, B, and C in the reference manuscript (Glimm & Yau (2021)). Scenario A is very close to IPD center (see data(ipd)) and is within the IPD convex hull; scenario B is further away from IPD center but otherwise still inside the IPD convex hull; scenario C is outside IPD convex hull.}
-#' \item{y1}{a numeric vector}
-#' \item{y2}{a numeric vector}
+#' \item{\code{scen}}{scenario A, B, or C. Scenario A is very close to the IPD centre (see \code{\link{eIPD}}) and is inside the IPD convex hull; scenario B is further from the centre but still inside the hull; scenario C is outside the hull.}
+#' \item{\code{y1}}{numeric, matching-covariate-1 mean.}
+#' \item{\code{y2}}{numeric, matching-covariate-2 mean.}
+#' \item{\code{r.cont.mean}}{numeric, AD mean of the continuous response.}
+#' \item{\code{r.cont.sd}}{numeric, AD standard deviation of the continuous response.}
+#' \item{\code{r.cont.n}}{integer, AD sample size for the continuous response.}
+#' \item{\code{r.bin.p}}{numeric, AD event proportion for the binary response.}
+#' \item{\code{r.bin.n}}{integer, AD sample size for the binary response.}
 #' }
 #'
 #' @docType data
@@ -16,7 +26,7 @@
 #'
 #' @keywords datasets
 #'
-#' @references Glimm & Yau (2021)
+#' @references Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 #'
 #' @examples
 #' data(eAD)

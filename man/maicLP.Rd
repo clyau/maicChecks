@@ -18,14 +18,17 @@ maicLP(ipd, ad)
 Checks if AD is within the convex hull of IPD using lp-solve
 }
 \examples{
+## eIPD now contains response columns (r.cont, r.bin) in addition to the
+## matching columns y1, y2. Subset to the matching columns explicitly.
+
 ## eAD[1,] is the scenario A in the reference paper,
 ## i.e. when AD is within IPD convex hull
-maicLP(eIPD, eAD[1,2:3])
+maicLP(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
 
 ## eAD[3,] is the scenario C in the reference paper,
 ## i.e. when AD is outside IPD convex hull
-maicLP(eIPD, eAD[3,2:3])
+maicLP(eIPD[, c('y1', 'y2')], eAD[3, c('y1', 'y2')])
 }
 \references{
-Glimm & Yau (2021). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons", Pharmaceutical Statistics, 21(5):974-987. doi:10.1002/pst.2210.
+Glimm E and Yau L. (2022). 'Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons.' \emph{Pharmaceutical Statistics}, 21(5):974-987. \doi{10.1002/pst.2210}.
 }

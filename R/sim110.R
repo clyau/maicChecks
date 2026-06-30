@@ -1,12 +1,18 @@
 #' Simulated data used for exact matching
 #'
-#' sim110 is one of the simulated data presented in the simulation study in Glimm & Yau (2025).The covariates used in matching are X1 to X15. A response variable Y is simulated to depend on 6 of the 15 covariates.
+#' \code{sim110} is one of the simulated data sets presented in the
+#' simulation study of Glimm & Yau (2026). The \strong{matching
+#' covariates} are \code{X1} to \code{X15}. The \strong{continuous
+#' response} \code{Y} is simulated to depend on 6 of the 15 covariates;
+#' the \strong{binary response} \code{Y.bin} (added in v0.3.0) is the
+#' indicator \code{Y > median(Y)}.
 #'
 #' @format
 #' \describe{
-#' \item{X1 to X15}{Covariates used in matching}
-#' \item{Y}{Response variable}
-#' \item{study}{IPD A and IPD B}
+#' \item{\code{X1} to \code{X15}}{matching covariates.}
+#' \item{\code{Y}}{numeric, continuous response.}
+#' \item{\code{Y.bin}}{integer 0/1, binary response equal to \code{as.integer(Y > median(Y))}.}
+#' \item{\code{study}}{factor with levels \code{'IPD A'} and \code{'IPD B'}.}
 #' }
 #'
 #' @docType data
@@ -15,7 +21,7 @@
 #'
 #' @keywords datasets
 #'
-#' @references Glimm & Yau (2025)
+#' @references Glimm E and Yau L. (2026). 'Exact matching as an alternative to propensity score matching.' \emph{Statistics in Biopharmaceutical Research}, 18(1):106-116. \doi{10.1080/19466315.2025.2507378}.
 #'
 #' @examples
 #' data(sim110)

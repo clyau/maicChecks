@@ -126,6 +126,65 @@
 #' }
 # Modification: 3 methods for arm-level variance estimation,
 # and option to return all 3 in a summary table (2024-06-17, LY)
+.wtTrtDiff_arm_stats <- function(y, w) {
+  W     <- sum(w)
+  W2    <- sum(w^2)
+  mu_w  <- sum(w * y) / W
+  ess   <- W^2 / W2
+
+  s_unw <- mean((y - mean(y))^2)
+  var_paper <- (W2 / W^2) * s_unw
+
+  s_w <- sum(w * (y - mu_w)^2) / W
+  var_weighted_ess <- (W2 / W^2) * s_w
+
+  var_sq_residual <- sum((w^2) * (y - mu_w)^2) / (W^2)
+
+  list(
+    mu_w = mu_w,
+    ess = ess,
+    vars = c(
+      paper = var_paper,
+      weighted_ess = var_weighted_ess,
+      sq_residual = var_sq_residual
+    )
+  )
+}
+
+.wtTrtDiff_calc_row <- function(meth,
+                                arm1,
+                                var2_by_method,
+                                wt.y1,
+                                wt.y2,
+                                wt.diff,
+                                z,
+                                conf.level,
+                                ess1,
+                                ess2) {
+  var1 <- unname(arm1$vars[meth])
+  var2 <- unname(var2_by_method[meth])
+  se1 <- sqrt(var1)
+  se2 <- sqrt(var2)
+  se.diff <- sqrt(var1 + var2)
+  ci.lo <- wt.diff - z * se.diff
+  ci.hi <- wt.diff + z * se.diff
+  data.frame(
+    var.method = meth,
+    wt.y1 = wt.y1,
+    wt.y2 = wt.y2,
+    wt.diff = wt.diff,
+    se1 = se1,
+    se2 = se2,
+    se.diff = se.diff,
+    ci.lower = ci.lo,
+    ci.upper = ci.hi,
+    conf.level = conf.level,
+    ess1 = ess1,
+    ess2 = ess2,
+    stringsAsFactors = FALSE
+  )
+}
+
 wtTrtDiff <- function(ipd1.te, w1,
                       ipd2.te = NULL, w2 = NULL,
                       ad.mean = NULL, ad.sd = NULL, ad.n = NULL,
@@ -141,8 +200,10 @@ wtTrtDiff <- function(ipd1.te, w1,
     stop('`ipd1.te` must have length >= 2.', call. = FALSE)
   if (anyNA(ipd1.te) || anyNA(w1))
     stop('`ipd1.te` and `w1` must not contain NA.', call. = FALSE)
-  if (any(w1 < 0))
-    stop('weights in `w1` must be non-negative.', call. = FALSE)
+  tol <- max(1e-12, 1e-10 * max(1, max(abs(w1))))
+  if (any(w1 < -tol))
+    stop('weights in `w1` must be non-negative (beyond numerical tolerance).',
+         call. = FALSE)
   if (sum(w1) <= 0)
     stop('weights in `w1` must sum to a positive number.', call. = FALSE)
   if (length(conf.level) != 1L || !is.numeric(conf.level) ||
@@ -162,38 +223,8 @@ wtTrtDiff <- function(ipd1.te, w1,
     stop('Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied.',
          call. = FALSE)
 
-  ## ---- helper: arm-level weighted mean + 3 variance estimators ----------
-  arm_stats <- function(y, w) {
-    W     <- sum(w)
-    W2    <- sum(w^2)
-    mu_w  <- sum(w * y) / W
-    ess   <- W^2 / W2
-
-    # 1) original paper implementation in this function:
-    #    unweighted variance around unweighted mean, scaled by 1/ESS
-    s_unw <- mean((y - mean(y))^2)
-    var_paper <- (W2 / W^2) * s_unw
-
-    # 2) weighted pseudo-population variance, scaled by 1/ESS
-    s_w <- sum(w * (y - mu_w)^2) / W
-    var_weighted_ess <- (W2 / W^2) * s_w
-
-    # 3) direct squared-residual weighted estimator
-    var_sq_residual <- sum((w^2) * (y - mu_w)^2) / (W^2)
-
-    list(
-      mu_w = mu_w,
-      ess = ess,
-      vars = c(
-        paper = var_paper,
-        weighted_ess = var_weighted_ess,
-        sq_residual = var_sq_residual
-      )
-    )
-  }
-
   ## ---- IPD 1 stats ------------------------------------------------------
-  arm1 <- arm_stats(ipd1.te, w1)
+  arm1 <- .wtTrtDiff_arm_stats(ipd1.te, w1)
   wt.y1 <- arm1$mu_w
   ess1  <- arm1$ess
 
@@ -210,12 +241,14 @@ wtTrtDiff <- function(ipd1.te, w1,
       stop('`ipd2.te` must have length >= 2.', call. = FALSE)
     if (anyNA(ipd2.te) || anyNA(w2))
       stop('`ipd2.te` and `w2` must not contain NA.', call. = FALSE)
-    if (any(w2 < 0))
-      stop('weights in `w2` must be non-negative.', call. = FALSE)
+    tol <- max(1e-12, 1e-10 * max(1, max(abs(w2))))
+    if (any(w2 < -tol))
+      stop('weights in `w2` must be non-negative (beyond numerical tolerance).',
+           call. = FALSE)
     if (sum(w2) <= 0)
       stop('weights in `w2` must sum to a positive number.', call. = FALSE)
 
-    arm2 <- arm_stats(ipd2.te, w2)
+    arm2 <- .wtTrtDiff_arm_stats(ipd2.te, w2)
     wt.y2 <- arm2$mu_w
     ess2  <- arm2$ess
     var2_by_method <- arm2$vars
@@ -253,34 +286,19 @@ wtTrtDiff <- function(ipd1.te, w1,
   z     <- stats::qnorm(1 - alpha / 2)
   wt.diff <- wt.y1 - wt.y2
 
-  calc_row <- function(meth) {
-    var1 <- unname(arm1$vars[meth])
-    var2 <- unname(var2_by_method[meth])
-    se1 <- sqrt(var1)
-    se2 <- sqrt(var2)
-    se.diff <- sqrt(var1 + var2)
-    ci.lo <- wt.diff - z * se.diff
-    ci.hi <- wt.diff + z * se.diff
-    data.frame(
-      var.method = meth,
-      wt.y1 = wt.y1,
-      wt.y2 = wt.y2,
-      wt.diff = wt.diff,
-      se1 = se1,
-      se2 = se2,
-      se.diff = se.diff,
-      ci.lower = ci.lo,
-      ci.upper = ci.hi,
-      conf.level = conf.level,
-      ess1 = ess1,
-      ess2 = ess2,
-      stringsAsFactors = FALSE
-    )
-  }
-
   if (identical(var.method, "all")) {
     methods <- c("paper", "weighted_ess", "sq_residual")
-    out <- do.call(rbind, lapply(methods, calc_row))
+    out <- do.call(rbind, lapply(methods,
+                                 .wtTrtDiff_calc_row,
+                                 arm1 = arm1,
+                                 var2_by_method = var2_by_method,
+                                 wt.y1 = wt.y1,
+                                 wt.y2 = wt.y2,
+                                 wt.diff = wt.diff,
+                                 z = z,
+                                 conf.level = conf.level,
+                                 ess1 = ess1,
+                                 ess2 = ess2))
     rownames(out) <- NULL
     return(list(
       summary = out,
@@ -289,7 +307,16 @@ wtTrtDiff <- function(ipd1.te, w1,
     ))
   }
 
-  out1 <- calc_row(var.method)
+  out1 <- .wtTrtDiff_calc_row(var.method,
+                              arm1 = arm1,
+                              var2_by_method = var2_by_method,
+                              wt.y1 = wt.y1,
+                              wt.y2 = wt.y2,
+                              wt.diff = wt.diff,
+                              z = z,
+                              conf.level = conf.level,
+                              ess1 = ess1,
+                              ess2 = ess2)
   return(list(
     wt.y1      = out1$wt.y1,
     wt.y2      = out1$wt.y2,

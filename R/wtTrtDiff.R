@@ -124,10 +124,13 @@
 #' wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 #'           ipd2.te = ipd2$Y.bin, w2 = w.out$ipd2$exm.wts)
 #' }
+# Modification: 3 methods for arm-level variance estimation,
+# and option to return all 3 in a summary table (2024-06-17, LY)
 wtTrtDiff <- function(ipd1.te, w1,
                       ipd2.te = NULL, w2 = NULL,
                       ad.mean = NULL, ad.sd = NULL, ad.n = NULL,
-                      conf.level = 0.95) {
+                      conf.level = 0.95,
+                      var.method = c("paper", "weighted_ess", "sq_residual", "all")) {
 
   ## ---- validate IPD-1 inputs --------------------------------------------
   if (!is.numeric(ipd1.te) || !is.numeric(w1))
@@ -146,6 +149,8 @@ wtTrtDiff <- function(ipd1.te, w1,
       conf.level <= 0 || conf.level >= 1)
     stop('`conf.level` must be a single number in (0, 1).', call. = FALSE)
 
+  var.method <- match.arg(var.method)
+
   ## ---- decide mode ------------------------------------------------------
   have.ipd2 <- !is.null(ipd2.te) || !is.null(w2)
   have.ad   <- !is.null(ad.mean)
@@ -157,16 +162,42 @@ wtTrtDiff <- function(ipd1.te, w1,
     stop('Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied.',
          call. = FALSE)
 
-  ## ---- IPD 1: weighted mean and Section-5 variance ----------------------
-  sumw1  <- sum(w1)
-  sumw1s <- sum(w1^2)
-  wt.y1  <- sum(w1 * ipd1.te) / sumw1
-  ess1   <- sumw1^2 / sumw1s
-  s1.sq  <- mean((ipd1.te - mean(ipd1.te))^2)   ## unweighted mean; divisor n1
-  var1   <- (sumw1s / sumw1^2) * s1.sq          ## == s1.sq / ess1
-  se1    <- sqrt(var1)
+  ## ---- helper: arm-level weighted mean + 3 variance estimators ----------
+  arm_stats <- function(y, w) {
+    W     <- sum(w)
+    W2    <- sum(w^2)
+    mu_w  <- sum(w * y) / W
+    ess   <- W^2 / W2
 
-  ## ---- IPD 2 ------------------------------------------------------------
+    # 1) original paper implementation in this function:
+    #    unweighted variance around unweighted mean, scaled by 1/ESS
+    s_unw <- mean((y - mean(y))^2)
+    var_paper <- (W2 / W^2) * s_unw
+
+    # 2) weighted pseudo-population variance, scaled by 1/ESS
+    s_w <- sum(w * (y - mu_w)^2) / W
+    var_weighted_ess <- (W2 / W^2) * s_w
+
+    # 3) direct squared-residual weighted estimator
+    var_sq_residual <- sum((w^2) * (y - mu_w)^2) / (W^2)
+
+    list(
+      mu_w = mu_w,
+      ess = ess,
+      vars = c(
+        paper = var_paper,
+        weighted_ess = var_weighted_ess,
+        sq_residual = var_sq_residual
+      )
+    )
+  }
+
+  ## ---- IPD 1 stats ------------------------------------------------------
+  arm1 <- arm_stats(ipd1.te, w1)
+  wt.y1 <- arm1$mu_w
+  ess1  <- arm1$ess
+
+  ## ---- Arm 2 stats (IPD or AD) ------------------------------------------
   if (have.ipd2) {
     if (is.null(ipd2.te) || is.null(w2))
       stop('Both `ipd2.te` and `w2` must be supplied for IPD-vs-IPD mode.',
@@ -184,13 +215,10 @@ wtTrtDiff <- function(ipd1.te, w1,
     if (sum(w2) <= 0)
       stop('weights in `w2` must sum to a positive number.', call. = FALSE)
 
-    sumw2  <- sum(w2)
-    sumw2s <- sum(w2^2)
-    wt.y2  <- sum(w2 * ipd2.te) / sumw2
-    ess2   <- sumw2^2 / sumw2s
-    s2.sq  <- mean((ipd2.te - mean(ipd2.te))^2)
-    var2   <- (sumw2s / sumw2^2) * s2.sq
-    se2    <- sqrt(var2)
+    arm2 <- arm_stats(ipd2.te, w2)
+    wt.y2 <- arm2$mu_w
+    ess2  <- arm2$ess
+    var2_by_method <- arm2$vars
   } else {
     if (!is.numeric(ad.mean) || length(ad.mean) != 1L)
       stop('`ad.mean` must be a single number.', call. = FALSE)
@@ -207,32 +235,76 @@ wtTrtDiff <- function(ipd1.te, w1,
         stop('`ad.sd` must be a single non-negative number.', call. = FALSE)
       if (!is.numeric(ad.n) || length(ad.n) != 1L || ad.n <= 0)
         stop('`ad.n` must be a single positive number.', call. = FALSE)
-      var2 <- ad.sd^2 / ad.n
+      var2_const <- ad.sd^2 / ad.n
       ess2 <- ad.n
     } else {
-      var2 <- 0
+      var2_const <- 0
       ess2 <- NA_real_
     }
-    se2  <- sqrt(var2)
+    var2_by_method <- c(
+      paper = var2_const,
+      weighted_ess = var2_const,
+      sq_residual = var2_const
+    )
   }
 
-  ## ---- difference and Wald CI -------------------------------------------
+  ## ---- CI helper ---------------------------------------------------------
+  alpha <- 1 - conf.level
+  z     <- stats::qnorm(1 - alpha / 2)
   wt.diff <- wt.y1 - wt.y2
-  se.diff <- sqrt(var1 + var2)
-  alpha   <- 1 - conf.level
-  z       <- stats::qnorm(1 - alpha / 2)
-  ci.lo   <- wt.diff - z * se.diff
-  ci.hi   <- wt.diff + z * se.diff
 
-  return(list(wt.y1      = wt.y1,
-              wt.y2      = wt.y2,
-              wt.diff    = wt.diff,
-              se1        = se1,
-              se2        = se2,
-              se.diff    = se.diff,
-              ci.lower   = ci.lo,
-              ci.upper   = ci.hi,
-              conf.level = conf.level,
-              ess1       = ess1,
-              ess2       = ess2))
+  calc_row <- function(meth) {
+    var1 <- unname(arm1$vars[meth])
+    var2 <- unname(var2_by_method[meth])
+    se1 <- sqrt(var1)
+    se2 <- sqrt(var2)
+    se.diff <- sqrt(var1 + var2)
+    ci.lo <- wt.diff - z * se.diff
+    ci.hi <- wt.diff + z * se.diff
+    data.frame(
+      var.method = meth,
+      wt.y1 = wt.y1,
+      wt.y2 = wt.y2,
+      wt.diff = wt.diff,
+      se1 = se1,
+      se2 = se2,
+      se.diff = se.diff,
+      ci.lower = ci.lo,
+      ci.upper = ci.hi,
+      conf.level = conf.level,
+      ess1 = ess1,
+      ess2 = ess2,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  if (identical(var.method, "all")) {
+    methods <- c("paper", "weighted_ess", "sq_residual")
+    out <- do.call(rbind, lapply(methods, calc_row))
+    rownames(out) <- NULL
+    return(list(
+      summary = out,
+      arm1.var = arm1$vars,
+      arm2.var = var2_by_method
+    ))
+  }
+
+  out1 <- calc_row(var.method)
+  return(list(
+    wt.y1      = out1$wt.y1,
+    wt.y2      = out1$wt.y2,
+    wt.diff    = out1$wt.diff,
+    se1        = out1$se1,
+    se2        = out1$se2,
+    se.diff    = out1$se.diff,
+    ci.lower   = out1$ci.lower,
+    ci.upper   = out1$ci.upper,
+    conf.level = out1$conf.level,
+    ess1       = out1$ess1,
+    ess2       = out1$ess2,
+    var.method = var.method,
+    var1       = unname(arm1$vars[var.method]),
+    var2       = unname(var2_by_method[var.method])
+  ))
 }
+

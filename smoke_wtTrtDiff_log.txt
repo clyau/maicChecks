@@ -1,0 +1,320 @@
+
+========== (1) IPD vs AD, with ad.sd / ad.n -- continuous ==========
+wt.y1     : 0.9812 
+wt.y2     : 0.7 
+wt.diff   : 0.2812 
+se1       : 0.0759 
+se2       : 0.0707 
+se.diff   : 0.1037 
+CI (95)   : [ 0.0779 , 0.4845 ]
+ess1      : 37.46 
+ess2      : 50 
+
+========== (2) IPD vs AD, AD as constant -- binary ==========
+wt.y2     : 0.4   (should equal eAD$r.bin.p[1])
+se2       : 0   (should be 0)
+ess2      : NA   (should be NA)
+se.diff   : 0.0755   (should equal r2$se1)
+
+========== (3) IPD vs AD, binary with ad.sd = sqrt(p(1-p)) ==========
+wt.y1   : 0.6875 
+wt.y2   : 0.4 
+wt.diff : 0.2875 
+se.diff : 0.1025 
+CI (95) : [ 0.0866 , 0.4884 ]
+
+========== (4) IPD vs IPD -- continuous (sim110$Y) ==========
+wt.y1 (A) : 0.8557 
+wt.y2 (B) : 1.0966 
+wt.diff   : -0.2409 
+se.diff   : 0.091 
+CI (95)   : [ -0.4194 , -0.0625 ]
+ess1 / ess2: 270.7 / 287.4 
+
+========== (5) IPD vs IPD -- binary (sim110$Y.bin) ==========
+wt.y1 (A) : 0.4488 
+wt.y2 (B) : 0.5555 
+wt.diff   : -0.1068 
+se.diff   : 0.042 
+CI (95)   : [ -0.1892 , -0.0244 ]
+
+========== (6) algebraic sanity check ==========
+manual var1 : 0.00427951 
+r4$se1^2    : 0.00427951 
+
+========== (7) input validation errors ==========
+length mismatch caught: `ipd1.te` and `w1` must have the same length. 
+negative weight caught: weights in `w1` must be non-negative. 
+no IPD 2 / AD caught: Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied. 
+both IPD 2 & AD caught: Specify either `ipd2.te`/`w2` (IPD vs IPD) or `ad.mean` (IPD vs AD), not both. 
+ad.sd w/o ad.n caught: `ad.sd` and `ad.n` must be supplied together (or both omitted). 
+
+========== WTTRTDIFF SMOKE TESTS PASSED ==========
+
+========================================================================
+   (8) IPD vs AD  --  inputs
+========================================================================
+IPD data (eIPD):
+  n.ipd         = 42 
+  mean(y1)      = 4.6342 
+  mean(y2)      = 4.98 
+  mean(r.cont)  = 0.9951 
+  sd  (r.cont)  = 0.47 
+  mean(r.bin)   = 0.6905 
+
+AD data (eAD), one row per scenario:
+  scen       y1       y2 r.cont.mean r.cont.sd r.cont.n r.bin.p r.bin.n
+3    A 3.770950 5.406162         0.7       0.5       50     0.4      50
+4    B 7.625698 2.464986         0.7       0.5       50     0.4      50
+2    C 6.536313 7.675070         0.7       0.5       50     0.4      50
+
+========================================================================
+   (8.1) IPD vs AD  --  scenario 1  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 3.77095 , 5.406162 )
+  weighted(IPD y1, y2)     = ( 3.771 , 5.4062 )
+  ESS (IPD)                = 37.46    ESS (AD) = 50 
+
+   var.method     wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 0.9811938   0.7 0.2811938 0.07586542 0.07071068 0.1037090 0.07792784 0.4844598
+ weighted_ess 0.9811938   0.7 0.2811938 0.07754860 0.07071068 0.1049466 0.07550227 0.4868853
+  sq_residual 0.9811938   0.7 0.2811938 0.07912404 0.07071068 0.1061160 0.07321018 0.4891774
+
+========================================================================
+   (8.2) IPD vs AD  --  scenario 2  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 7.625698 , 2.464986 )
+  weighted(IPD y1, y2)     = ( 7.6257 , 2.465 )
+  ESS (IPD)                = 13.48    ESS (AD) = 50 
+
+   var.method   wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 1.06775   0.7 0.3677502 0.12649045 0.07071068 0.1449132 0.08372555 0.6517748
+ weighted_ess 1.06775   0.7 0.3677502 0.09841903 0.07071068 0.1211871 0.13022792 0.6052725
+  sq_residual 1.06775   0.7 0.3677502 0.07327409 0.07071068 0.1018287 0.16816953 0.5673309
+[1] "c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks"
+[1] FALSE FALSE  TRUE
+                          size               mtime
+var_compare_IPDvsAD.csv     NA                <NA>
+var_compare_IPDvsIPD.csv    NA                <NA>
+smoke_wtTrtDiff_log.txt  13908 2026-06-22 18:32:20
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsAD.csv
+rows = 9   cols = 24 
+file size on disk: 2406 bytes
+=====================================================
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsIPD.csv
+rows = 6   cols = 19 
+file size on disk: 1950 bytes
+=====================================================
+[1] "sim110"   "simulate"
+wt.y1 (A) : 0.4488 
+wt.y2 (B) : 0.5555 
+wt.diff   : -0.1068 
+se.diff   : 0.042 
+CI (95)   : [ -0.1892 , -0.0244 ]
+
+========== (6) algebraic sanity check ==========
+manual var1 : 0.00427951 
+r4$se1^2    : 0.00427951 
+
+========== (7) input validation errors ==========
+length mismatch caught: `ipd1.te` and `w1` must have the same length. 
+negative weight caught: weights in `w1` must be non-negative. 
+no IPD 2 / AD caught: Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied. 
+both IPD 2 & AD caught: Specify either `ipd2.te`/`w2` (IPD vs IPD) or `ad.mean` (IPD vs AD), not both. 
+ad.sd w/o ad.n caught: `ad.sd` and `ad.n` must be supplied together (or both omitted). 
+
+========== WTTRTDIFF SMOKE TESTS PASSED ==========
+
+========================================================================
+   (8) IPD vs AD  --  inputs
+========================================================================
+IPD data (eIPD):
+  n.ipd         = 42 
+  mean(y1)      = 4.6342 
+  mean(y2)      = 4.98 
+  mean(r.cont)  = 0.9951 
+  sd  (r.cont)  = 0.47 
+  mean(r.bin)   = 0.6905 
+
+AD data (eAD), one row per scenario:
+  scen       y1       y2 r.cont.mean r.cont.sd r.cont.n r.bin.p r.bin.n
+3    A 3.770950 5.406162         0.7       0.5       50     0.4      50
+4    B 7.625698 2.464986         0.7       0.5       50     0.4      50
+2    C 6.536313 7.675070         0.7       0.5       50     0.4      50
+
+========================================================================
+   (8.1) IPD vs AD  --  scenario 1  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 3.77095 , 5.406162 )
+  weighted(IPD y1, y2)     = ( 3.771 , 5.4062 )
+  ESS (IPD)                = 37.46    ESS (AD) = 50 
+
+   var.method     wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 0.9811938   0.7 0.2811938 0.07586542 0.07071068 0.1037090 0.07792784 0.4844598
+ weighted_ess 0.9811938   0.7 0.2811938 0.07754860 0.07071068 0.1049466 0.07550227 0.4868853
+  sq_residual 0.9811938   0.7 0.2811938 0.07912404 0.07071068 0.1061160 0.07321018 0.4891774
+
+========================================================================
+   (8.2) IPD vs AD  --  scenario 2  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 7.625698 , 2.464986 )
+  weighted(IPD y1, y2)     = ( 7.6257 , 2.465 )
+  ESS (IPD)                = 13.48    ESS (AD) = 50 
+
+   var.method   wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 1.06775   0.7 0.3677502 0.12649045 0.07071068 0.1449132 0.08372555 0.6517748
+ weighted_ess 1.06775   0.7 0.3677502 0.09841903 0.07071068 0.1211871 0.13022792 0.6052725
+  sq_residual 1.06775   0.7 0.3677502 0.07327409 0.07071068 0.1018287 0.16816953 0.5673309
+[1] "c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks"
+[1] FALSE FALSE  TRUE
+                          size               mtime
+var_compare_IPDvsAD.csv     NA                <NA>
+var_compare_IPDvsIPD.csv    NA                <NA>
+smoke_wtTrtDiff_log.txt  13908 2026-06-22 18:32:20
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsAD.csv
+rows = 9   cols = 24 
+file size on disk: 2406 bytes
+=====================================================
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsIPD.csv
+rows = 6   cols = 19 
+file size on disk: 1950 bytes
+=====================================================
+[1] "sim110"   "simulate"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+========== (1) IPD vs AD, with ad.sd / ad.n -- continuous ==========
+wt.y1     : 0.9812 
+wt.y2     : 0.7 
+wt.diff   : 0.2812 
+se1       : 0.0759 
+se2       : 0.0707 
+se.diff   : 0.1037 
+CI (95)   : [ 0.0779 , 0.4845 ]
+ess1      : 37.46 
+ess2      : 50 
+
+========== (2) IPD vs AD, AD as constant -- binary ==========
+wt.y2     : 0.4   (should equal eAD$r.bin.p[1])
+se2       : 0   (should be 0)
+ess2      : NA   (should be NA)
+se.diff   : 0.0755   (should equal r2$se1)
+
+========== (3) IPD vs AD, binary with ad.sd = sqrt(p(1-p)) ==========
+wt.y1   : 0.6875 
+wt.y2   : 0.4 
+wt.diff : 0.2875 
+se.diff : 0.1025 
+CI (95) : [ 0.0866 , 0.4884 ]
+
+========== (4) IPD vs IPD -- continuous (sim110$Y) ==========
+wt.y1 (A) : 0.8557 
+wt.y2 (B) : 1.0966 
+wt.diff   : -0.2409 
+se.diff   : 0.091 
+CI (95)   : [ -0.4194 , -0.0625 ]
+ess1 / ess2: 270.7 / 287.4 
+
+========== (5) IPD vs IPD -- binary (sim110$Y.bin) ==========
+wt.y1 (A) : 0.4488 
+wt.y2 (B) : 0.5555 
+wt.diff   : -0.1068 
+se.diff   : 0.042 
+CI (95)   : [ -0.1892 , -0.0244 ]
+
+========== (6) algebraic sanity check ==========
+manual var1 : 0.00427951 
+r4$se1^2    : 0.00427951 
+
+========== (7) input validation errors ==========
+length mismatch caught: `ipd1.te` and `w1` must have the same length. 
+negative weight caught: weights in `w1` must be non-negative. 
+no IPD 2 / AD caught: Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied. 
+both IPD 2 & AD caught: Specify either `ipd2.te`/`w2` (IPD vs IPD) or `ad.mean` (IPD vs AD), not both. 
+ad.sd w/o ad.n caught: `ad.sd` and `ad.n` must be supplied together (or both omitted). 
+
+========== WTTRTDIFF SMOKE TESTS PASSED ==========
+
+========================================================================
+   (8) IPD vs AD  --  inputs
+========================================================================
+IPD data (eIPD):
+  n.ipd         = 42 
+  mean(y1)      = 4.6342 
+  mean(y2)      = 4.98 
+  mean(r.cont)  = 0.9951 
+  sd  (r.cont)  = 0.47 
+  mean(r.bin)   = 0.6905 
+
+AD data (eAD), one row per scenario:
+  scen       y1       y2 r.cont.mean r.cont.sd r.cont.n r.bin.p r.bin.n
+3    A 3.770950 5.406162         0.7       0.5       50     0.4      50
+4    B 7.625698 2.464986         0.7       0.5       50     0.4      50
+2    C 6.536313 7.675070         0.7       0.5       50     0.4      50
+
+========================================================================
+   (8.1) IPD vs AD  --  scenario 1  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 3.77095 , 5.406162 )
+  weighted(IPD y1, y2)     = ( 3.771 , 5.4062 )
+  ESS (IPD)                = 37.46    ESS (AD) = 50 
+
+   var.method     wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 0.9811938   0.7 0.2811938 0.07586542 0.07071068 0.1037090 0.07792784 0.4844598
+ weighted_ess 0.9811938   0.7 0.2811938 0.07754860 0.07071068 0.1049466 0.07550227 0.4868853
+  sq_residual 0.9811938   0.7 0.2811938 0.07912404 0.07071068 0.1061160 0.07321018 0.4891774
+
+========================================================================
+   (8.2) IPD vs AD  --  scenario 2  (continuous response r.cont)
+========================================================================
+  weight.method            = maicWt
+  n.ipd / n.ad             = 42 / 50 
+  target  (ad.y1, ad.y2)   = ( 7.625698 , 2.464986 )
+  weighted(IPD y1, y2)     = ( 7.6257 , 2.465 )
+  ESS (IPD)                = 13.48    ESS (AD) = 50 
+
+   var.method   wt.y1 wt.y2   wt.diff        se1        se2   se.diff   ci.lower  ci.upper
+        paper 1.06775   0.7 0.3677502 0.12649045 0.07071068 0.1449132 0.08372555 0.6517748
+ weighted_ess 1.06775   0.7 0.3677502 0.09841903 0.07071068 0.1211871 0.13022792 0.6052725
+  sq_residual 1.06775   0.7 0.3677502 0.07327409 0.07071068 0.1018287 0.16816953 0.5673309
+[1] "c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks"
+[1] FALSE FALSE  TRUE
+                          size               mtime
+var_compare_IPDvsAD.csv     NA                <NA>
+var_compare_IPDvsIPD.csv    NA                <NA>
+smoke_wtTrtDiff_log.txt  13908 2026-06-22 18:32:20
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsAD.csv
+rows = 9   cols = 24 
+file size on disk: 2406 bytes
+=====================================================
+
+=====================================================
+CSV WRITTEN TO:
+  c:/Users/GLIMMEK2/OneDrive - Novartis Pharma AG/08_psAlt/MAICchecks_clone/maicChecks/var_compare_IPDvsIPD.csv
+rows = 6   cols = 19 
+file size on disk: 1950 bytes
+=====================================================
+[1] "sim110"   "simulate"

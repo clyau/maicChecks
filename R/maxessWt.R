@@ -49,7 +49,23 @@ maxessWt <- function(ipd, ad) {
                            bvec = bvec,
                            meq  = p)
 
-  ipd.wts.me    <- x1[['solution']] * ipd.n            ## scaled to sum to n
+  w.sol <- x1[['solution']]
+  tol   <- max(1e-12, 1e-10 * max(1, max(abs(w.sol))))
+
+  if (any(w.sol < -tol))
+    stop('`maxessWt` produced materially negative weights; check feasibility / numerics.',
+         call. = FALSE)
+
+  if (any(w.sol < 0)) {
+    warning('`maxessWt` produced tiny negative weights from numerical noise; set to 0.',
+            call. = FALSE)
+    w.sol[w.sol < 0] <- 0
+    if (sum(w.sol) <= 0)
+      stop('weights must sum to a positive number after clipping.', call. = FALSE)
+    w.sol <- w.sol / sum(w.sol)
+  }
+
+  ipd.wts.me    <- w.sol * ipd.n            ## scaled to sum to n
   ipd.ess.me    <- round(sum(ipd.wts.me)^2 / sum(ipd.wts.me^2), 1)
   ipd.wtsumm.me <- colMeans(ipd * ipd.wts.me)
 

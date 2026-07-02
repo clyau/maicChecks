@@ -3,8 +3,8 @@
 #' @description
 #' Computes the weighted mean response in each of two arms (IPD vs IPD or
 #' IPD vs AD), their difference, and a Wald (normal-based) confidence
-#' interval for the difference using the variance estimator described in
-#' Section 5 of Glimm & Yau (2026). Two modes are supported:
+#' interval for the difference, see Section 5 of Glimm & Yau (2026).
+#' Two modes are supported:
 #' \itemize{
 #'   \item \strong{IPD vs IPD} -- supply per-subject treatment-effect
 #'     responses and weights for both arms
@@ -27,9 +27,9 @@
 #' with effective sample size
 #' \eqn{\mathrm{ESS}_k = (\sum_i w_i)^2 / \sum_i w_i^2}. The arm-level
 #' variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_k)} is selected by
-#' \code{var.method}, which offers three estimators:
+#' \code{var.method}. This offers three estimators:
 #' \describe{
-#'   \item{\code{'paper'} (default)}{The estimator of Glimm & Yau
+#'   \item{\code{'paper'} (default)}{The estimator described in Glimm & Yau
 #'     (2026, Section 5),
 #'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
 #'           \frac{\sum_i w_i^2}{(\sum_i w_i)^2}\, s_k^2 =
@@ -46,23 +46,38 @@
 #'     and is itself weighted,
 #'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
 #'           \frac{s_{w,k}^2}{\mathrm{ESS}_k}, \qquad
-#'           s_{w,k}^2 = \frac{\sum_i w_i (y_i - \hat{\mu}_k)^2}{\sum_i w_i}.}}
+#'           s_{w,k}^2 = \frac{\sum_i w_i (y_i - \hat{\mu}_k)^2}{\sum_i w_i}.}
+#'     This estimator arises from treating \eqn{w_i} as the weight in a
+#'     pseudo-population where \eqn{w_i} identical repetitions of
+#'     \eqn{(\mathbf{x}_i, y_i)} had been observed. For non-integer weights,
+#'     this is an analogy rather than a literal sampling interpretation.}
 #'   \item{\code{'sq_residual'}}{A linearization / sandwich-type estimator
 #'     formed directly from the weighted residuals,
 #'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
-#'           \frac{\sum_i w_i^2 (y_i - \hat{\mu}_k)^2}{(\sum_i w_i)^2}.}}
+#'           \frac{\sum_i w_i^2 (y_i - \hat{\mu}_k)^2}{(\sum_i w_i)^2}.}
+#'     This has the form of a sandwich or robust variance estimator for a
+#'     weighted mean, as commonly used in survey sampling and generalized
+#'     estimating equations. In the present setting, however, the weights
+#'     are covariate-balancing weights rather than precision weights.
+#'     Therefore the squared residuals may reflect both random outcome
+#'     variation and systematic outcome differences associated with
+#'     covariates. This estimator is included as a sensitivity option
+#'     rather than as the recommended default.}
 #' }
+#' For \code{'paper'} and \code{'weighted_ess'}, the estimated outcome
+#' variance is divided by the ESS to obtain the variance estimate of the
+#' treatment effect estimate. For \code{'sq_residual'}, no further division
+#' by the ESS is made, because the weights enter the variance formula
+#' directly through both the numerator and the denominator.
+#'
 #' Setting \code{var.method = 'all'} returns all three estimators side by
-#' side (see \strong{Value}) for sensitivity comparison. Only the
-#' \code{'paper'} default is endorsed by Glimm & Yau (2026); the other two
-#' are provided for exploratory sensitivity analysis.
+#' side (see \strong{Value}) for sensitivity comparison.
 #'
 #' For the \strong{IPD vs AD} mode, if both \code{ad.sd} and \code{ad.n} are
 #' supplied the AD variance is \eqn{\hat{\sigma}_{ad}^2 / n_{ad}}; otherwise
 #' the AD mean is treated as a fixed constant
 #' (\eqn{\widehat{\mathrm{var}} = 0}). For binary AD endpoints the user may
-#' supply \code{ad.sd = sqrt(p * (1 - p))}. The AD-arm variance does not
-#' depend on \code{var.method}.
+#' supply \code{ad.sd = sqrt(p * (1 - p))}.
 #'
 #' Assuming the two arms are independent (e.g. they come from different
 #' studies),
@@ -183,8 +198,10 @@ wtTrtDiff <- function(ipd1.te, w1,
     stop('`ipd1.te` must have length >= 2.', call. = FALSE)
   if (anyNA(ipd1.te) || anyNA(w1))
     stop('`ipd1.te` and `w1` must not contain NA.', call. = FALSE)
-  if (any(w1 < 0))
-    stop('weights in `w1` must be non-negative.', call. = FALSE)
+  tol <- max(1e-12, 1e-10 * max(1, max(abs(w1))))
+  if (any(w1 < -tol))
+    stop('weights in `w1` must be non-negative (beyond numerical tolerance).',
+         call. = FALSE)
   if (sum(w1) <= 0)
     stop('weights in `w1` must sum to a positive number.', call. = FALSE)
   if (length(conf.level) != 1L || !is.numeric(conf.level) ||
@@ -204,38 +221,8 @@ wtTrtDiff <- function(ipd1.te, w1,
     stop('Either `ipd2.te` and `w2` (IPD vs IPD) or `ad.mean` (IPD vs AD) must be supplied.',
          call. = FALSE)
 
-  ## ---- helper: arm-level weighted mean + 3 variance estimators ----------
-  arm_stats <- function(y, w) {
-    W     <- sum(w)
-    W2    <- sum(w^2)
-    mu_w  <- sum(w * y) / W
-    ess   <- W^2 / W2
-
-    # 1) original paper implementation in this function:
-    #    unweighted variance around unweighted mean, scaled by 1/ESS
-    s_unw <- mean((y - mean(y))^2)
-    var_paper <- (W2 / W^2) * s_unw
-
-    # 2) weighted pseudo-population variance, scaled by 1/ESS
-    s_w <- sum(w * (y - mu_w)^2) / W
-    var_weighted_ess <- (W2 / W^2) * s_w
-
-    # 3) direct squared-residual weighted estimator
-    var_sq_residual <- sum((w^2) * (y - mu_w)^2) / (W^2)
-
-    list(
-      mu_w = mu_w,
-      ess = ess,
-      vars = c(
-        paper = var_paper,
-        weighted_ess = var_weighted_ess,
-        sq_residual = var_sq_residual
-      )
-    )
-  }
-
   ## ---- IPD 1 stats ------------------------------------------------------
-  arm1 <- arm_stats(ipd1.te, w1)
+  arm1 <- .wtTrtDiff_arm_stats(ipd1.te, w1)
   wt.y1 <- arm1$mu_w
   ess1  <- arm1$ess
 
@@ -252,12 +239,14 @@ wtTrtDiff <- function(ipd1.te, w1,
       stop('`ipd2.te` must have length >= 2.', call. = FALSE)
     if (anyNA(ipd2.te) || anyNA(w2))
       stop('`ipd2.te` and `w2` must not contain NA.', call. = FALSE)
-    if (any(w2 < 0))
-      stop('weights in `w2` must be non-negative.', call. = FALSE)
+    tol <- max(1e-12, 1e-10 * max(1, max(abs(w2))))
+    if (any(w2 < -tol))
+      stop('weights in `w2` must be non-negative (beyond numerical tolerance).',
+           call. = FALSE)
     if (sum(w2) <= 0)
       stop('weights in `w2` must sum to a positive number.', call. = FALSE)
 
-    arm2 <- arm_stats(ipd2.te, w2)
+    arm2 <- .wtTrtDiff_arm_stats(ipd2.te, w2)
     wt.y2 <- arm2$mu_w
     ess2  <- arm2$ess
     var2_by_method <- arm2$vars
@@ -290,39 +279,24 @@ wtTrtDiff <- function(ipd1.te, w1,
     )
   }
 
-  ## ---- CI helper ---------------------------------------------------------
+  ## ---- assemble point estimate + Wald CI --------------------------------
   alpha <- 1 - conf.level
   z     <- stats::qnorm(1 - alpha / 2)
   wt.diff <- wt.y1 - wt.y2
 
-  calc_row <- function(meth) {
-    var1 <- unname(arm1$vars[meth])
-    var2 <- unname(var2_by_method[meth])
-    se1 <- sqrt(var1)
-    se2 <- sqrt(var2)
-    se.diff <- sqrt(var1 + var2)
-    ci.lo <- wt.diff - z * se.diff
-    ci.hi <- wt.diff + z * se.diff
-    data.frame(
-      var.method = meth,
-      wt.y1 = wt.y1,
-      wt.y2 = wt.y2,
-      wt.diff = wt.diff,
-      se1 = se1,
-      se2 = se2,
-      se.diff = se.diff,
-      ci.lower = ci.lo,
-      ci.upper = ci.hi,
-      conf.level = conf.level,
-      ess1 = ess1,
-      ess2 = ess2,
-      stringsAsFactors = FALSE
-    )
-  }
-
   if (identical(var.method, 'all')) {
     methods <- c('paper', 'weighted_ess', 'sq_residual')
-    out <- do.call(rbind, lapply(methods, calc_row))
+    out <- do.call(rbind, lapply(methods,
+                                 .wtTrtDiff_calc_row,
+                                 arm1           = arm1,
+                                 var2_by_method = var2_by_method,
+                                 wt.y1          = wt.y1,
+                                 wt.y2          = wt.y2,
+                                 wt.diff        = wt.diff,
+                                 z              = z,
+                                 conf.level     = conf.level,
+                                 ess1           = ess1,
+                                 ess2           = ess2))
     rownames(out) <- NULL
     return(list(
       summary = out,
@@ -331,7 +305,16 @@ wtTrtDiff <- function(ipd1.te, w1,
     ))
   }
 
-  out1 <- calc_row(var.method)
+  out1 <- .wtTrtDiff_calc_row(var.method,
+                              arm1           = arm1,
+                              var2_by_method = var2_by_method,
+                              wt.y1          = wt.y1,
+                              wt.y2          = wt.y2,
+                              wt.diff        = wt.diff,
+                              z              = z,
+                              conf.level     = conf.level,
+                              ess1           = ess1,
+                              ess2           = ess2)
   return(list(
     wt.y1      = out1$wt.y1,
     wt.y2      = out1$wt.y2,
@@ -348,5 +331,69 @@ wtTrtDiff <- function(ipd1.te, w1,
     var1       = unname(arm1$vars[var.method]),
     var2       = unname(var2_by_method[var.method])
   ))
+}
+
+
+## ---------------------------------------------------------------------------
+## Internal helpers (not exported)
+## ---------------------------------------------------------------------------
+
+## arm-level weighted mean, ESS, and the three variance estimators described
+## in the 'Details' section of wtTrtDiff().
+.wtTrtDiff_arm_stats <- function(y, w) {
+  W    <- sum(w)
+  W2   <- sum(w^2)
+  mu_w <- sum(w * y) / W
+  ess  <- W^2 / W2
+
+  ## 'paper': unweighted variance about the unweighted mean, scaled by 1/ESS
+  s_unw     <- mean((y - mean(y))^2)
+  var_paper <- (W2 / W^2) * s_unw
+
+  ## 'weighted_ess': weighted variance about the weighted mean, scaled by 1/ESS
+  s_w              <- sum(w * (y - mu_w)^2) / W
+  var_weighted_ess <- (W2 / W^2) * s_w
+
+  ## 'sq_residual': direct squared-residual (sandwich-type) estimator
+  var_sq_residual <- sum((w^2) * (y - mu_w)^2) / (W^2)
+
+  list(
+    mu_w = mu_w,
+    ess  = ess,
+    vars = c(
+      paper        = var_paper,
+      weighted_ess = var_weighted_ess,
+      sq_residual  = var_sq_residual
+    )
+  )
+}
+
+## build a one-row data.frame (point estimate + Wald CI) for one variance
+## method, given the pre-computed arm statistics.
+.wtTrtDiff_calc_row <- function(meth, arm1, var2_by_method,
+                                wt.y1, wt.y2, wt.diff, z,
+                                conf.level, ess1, ess2) {
+  var1    <- unname(arm1$vars[meth])
+  var2    <- unname(var2_by_method[meth])
+  se1     <- sqrt(var1)
+  se2     <- sqrt(var2)
+  se.diff <- sqrt(var1 + var2)
+  ci.lo   <- wt.diff - z * se.diff
+  ci.hi   <- wt.diff + z * se.diff
+  data.frame(
+    var.method = meth,
+    wt.y1      = wt.y1,
+    wt.y2      = wt.y2,
+    wt.diff    = wt.diff,
+    se1        = se1,
+    se2        = se2,
+    se.diff    = se.diff,
+    ci.lower   = ci.lo,
+    ci.upper   = ci.hi,
+    conf.level = conf.level,
+    ess1       = ess1,
+    ess2       = ess2,
+    stringsAsFactors = FALSE
+  )
 }
 

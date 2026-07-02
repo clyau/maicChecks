@@ -65,8 +65,8 @@ When \code{var.method = 'all'}, a list instead containing:
 \description{
 Computes the weighted mean response in each of two arms (IPD vs IPD or
 IPD vs AD), their difference, and a Wald (normal-based) confidence
-interval for the difference using the variance estimator described in
-Section 5 of Glimm & Yau (2026). Two modes are supported:
+interval for the difference, see Section 5 of Glimm & Yau (2026).
+Two modes are supported:
 \itemize{
   \item \strong{IPD vs IPD} -- supply per-subject treatment-effect
     responses and weights for both arms
@@ -89,9 +89,9 @@ The weighted point estimate in arm \eqn{k} is
 with effective sample size
 \eqn{\mathrm{ESS}_k = (\sum_i w_i)^2 / \sum_i w_i^2}. The arm-level
 variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_k)} is selected by
-\code{var.method}, which offers three estimators:
+\code{var.method}. This offers three estimators:
 \describe{
-  \item{\code{'paper'} (default)}{The estimator of Glimm & Yau
+  \item{\code{'paper'} (default)}{The estimator described in Glimm & Yau
     (2026, Section 5),
     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
           \frac{\sum_i w_i^2}{(\sum_i w_i)^2}\, s_k^2 =
@@ -108,23 +108,38 @@ variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_k)} is selected by
     and is itself weighted,
     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
           \frac{s_{w,k}^2}{\mathrm{ESS}_k}, \qquad
-          s_{w,k}^2 = \frac{\sum_i w_i (y_i - \hat{\mu}_k)^2}{\sum_i w_i}.}}
+          s_{w,k}^2 = \frac{\sum_i w_i (y_i - \hat{\mu}_k)^2}{\sum_i w_i}.}
+    This estimator arises from treating \eqn{w_i} as the weight in a
+    pseudo-population where \eqn{w_i} identical repetitions of
+    \eqn{(\mathbf{x}_i, y_i)} had been observed. For non-integer weights,
+    this is an analogy rather than a literal sampling interpretation.}
   \item{\code{'sq_residual'}}{A linearization / sandwich-type estimator
     formed directly from the weighted residuals,
     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
-          \frac{\sum_i w_i^2 (y_i - \hat{\mu}_k)^2}{(\sum_i w_i)^2}.}}
+          \frac{\sum_i w_i^2 (y_i - \hat{\mu}_k)^2}{(\sum_i w_i)^2}.}
+    This has the form of a sandwich or robust variance estimator for a
+    weighted mean, as commonly used in survey sampling and generalized
+    estimating equations. In the present setting, however, the weights
+    are covariate-balancing weights rather than precision weights.
+    Therefore the squared residuals may reflect both random outcome
+    variation and systematic outcome differences associated with
+    covariates. This estimator is included as a sensitivity option
+    rather than as the recommended default.}
 }
+For \code{'paper'} and \code{'weighted_ess'}, the estimated outcome
+variance is divided by the ESS to obtain the variance estimate of the
+treatment effect estimate. For \code{'sq_residual'}, no further division
+by the ESS is made, because the weights enter the variance formula
+directly through both the numerator and the denominator.
+
 Setting \code{var.method = 'all'} returns all three estimators side by
-side (see \strong{Value}) for sensitivity comparison. Only the
-\code{'paper'} default is endorsed by Glimm & Yau (2026); the other two
-are provided for exploratory sensitivity analysis.
+side (see \strong{Value}) for sensitivity comparison.
 
 For the \strong{IPD vs AD} mode, if both \code{ad.sd} and \code{ad.n} are
 supplied the AD variance is \eqn{\hat{\sigma}_{ad}^2 / n_{ad}}; otherwise
 the AD mean is treated as a fixed constant
 (\eqn{\widehat{\mathrm{var}} = 0}). For binary AD endpoints the user may
-supply \code{ad.sd = sqrt(p * (1 - p))}. The AD-arm variance does not
-depend on \code{var.method}.
+supply \code{ad.sd = sqrt(p * (1 - p))}.
 
 Assuming the two arms are independent (e.g. they come from different
 studies),

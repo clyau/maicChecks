@@ -24,23 +24,45 @@
 #' @details
 #' The weighted point estimate in arm \eqn{k} is
 #' \deqn{\hat{\mu}_k = \frac{\sum_i w_i y_i}{\sum_i w_i},}
-#' and following Glimm & Yau (2026, Section 5) its conditional variance is
-#' estimated as
-#' \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k \mid X^{(k)}) =
-#'       \frac{\sum_i w_i^2}{(\sum_i w_i)^2}\, s_k^2 = \frac{s_k^2}{\mathrm{ESS}_k},}
-#' where \eqn{s_k^2 = \frac{1}{n_k}\sum_i (y_i - \bar{y}_k)^2} uses the
-#' \emph{unweighted} sample mean \eqn{\bar{y}_k}, and
-#' \eqn{\mathrm{ESS}_k = (\sum_i w_i)^2 / \sum_i w_i^2} is the effective
-#' sample size. Under the assumptions stated in Section 5 (no hidden
-#' confounders, within-study exchangeability, and
-#' \eqn{\mathrm{var}(Y) \geq \mathrm{var}(Y \mid X)}), this is a
-#' \emph{conservative} estimator of the conditional variance.
+#' with effective sample size
+#' \eqn{\mathrm{ESS}_k = (\sum_i w_i)^2 / \sum_i w_i^2}. The arm-level
+#' variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_k)} is selected by
+#' \code{var.method}, which offers three estimators:
+#' \describe{
+#'   \item{\code{'paper'} (default)}{The estimator of Glimm & Yau
+#'     (2026, Section 5),
+#'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
+#'           \frac{\sum_i w_i^2}{(\sum_i w_i)^2}\, s_k^2 =
+#'           \frac{s_k^2}{\mathrm{ESS}_k}, \qquad
+#'           s_k^2 = \frac{1}{n_k}\sum_i (y_i - \bar{y}_k)^2,}
+#'     where \eqn{s_k^2} uses the \emph{unweighted} sample mean
+#'     \eqn{\bar{y}_k}. Under the assumptions stated in Section 5 (no
+#'     hidden confounders, within-study exchangeability, and
+#'     \eqn{\mathrm{var}(Y) \geq \mathrm{var}(Y \mid X)}) this is a
+#'     \emph{conservative} estimator of the conditional variance, and is
+#'     the recommended default.}
+#'   \item{\code{'weighted_ess'}}{As \code{'paper'}, but the sample
+#'     variance is taken about the \emph{weighted} mean \eqn{\hat{\mu}_k}
+#'     and is itself weighted,
+#'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
+#'           \frac{s_{w,k}^2}{\mathrm{ESS}_k}, \qquad
+#'           s_{w,k}^2 = \frac{\sum_i w_i (y_i - \hat{\mu}_k)^2}{\sum_i w_i}.}}
+#'   \item{\code{'sq_residual'}}{A linearization / sandwich-type estimator
+#'     formed directly from the weighted residuals,
+#'     \deqn{\widehat{\mathrm{var}}(\hat{\mu}_k) =
+#'           \frac{\sum_i w_i^2 (y_i - \hat{\mu}_k)^2}{(\sum_i w_i)^2}.}}
+#' }
+#' Setting \code{var.method = 'all'} returns all three estimators side by
+#' side (see \strong{Value}) for sensitivity comparison. Only the
+#' \code{'paper'} default is endorsed by Glimm & Yau (2026); the other two
+#' are provided for exploratory sensitivity analysis.
 #'
 #' For the \strong{IPD vs AD} mode, if both \code{ad.sd} and \code{ad.n} are
 #' supplied the AD variance is \eqn{\hat{\sigma}_{ad}^2 / n_{ad}}; otherwise
 #' the AD mean is treated as a fixed constant
 #' (\eqn{\widehat{\mathrm{var}} = 0}). For binary AD endpoints the user may
-#' supply \code{ad.sd = sqrt(p * (1 - p))}.
+#' supply \code{ad.sd = sqrt(p * (1 - p))}. The AD-arm variance does not
+#' depend on \code{var.method}.
 #'
 #' Assuming the two arms are independent (e.g. they come from different
 #' studies),
@@ -58,8 +80,11 @@
 #' @param ad.sd optional scalar, the AD standard deviation of the response. If \code{NULL} the AD mean is treated as a constant.
 #' @param ad.n optional scalar, the AD sample size.
 #' @param conf.level confidence level for the Wald CI. Default \code{0.95}.
+#' @param var.method character string selecting the arm-level variance estimator: \code{'paper'} (default; the conservative Glimm & Yau (2026, Section 5) estimator), \code{'weighted_ess'}, \code{'sq_residual'}, or \code{'all'} to return all three side by side. Partial matching is allowed. See \strong{Details}.
 #'
-#' @return A list with the following slots:
+#' @return
+#' When \code{var.method} is one of \code{'paper'}, \code{'weighted_ess'} or
+#' \code{'sq_residual'}, a list with the following slots:
 #' \item{wt.y1}{weighted mean response in arm 1.}
 #' \item{wt.y2}{weighted mean response in arm 2 (or \code{ad.mean}).}
 #' \item{wt.diff}{the difference \code{wt.y1 - wt.y2}.}
@@ -71,6 +96,18 @@
 #' \item{conf.level}{the confidence level used.}
 #' \item{ess1}{effective sample size for arm 1.}
 #' \item{ess2}{effective sample size for arm 2 (\code{ad.n} when supplied, \code{NA} otherwise).}
+#' \item{var.method}{the variance estimator used.}
+#' \item{var1}{arm-1 variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_1)} under the chosen \code{var.method}.}
+#' \item{var2}{arm-2 variance \eqn{\widehat{\mathrm{var}}(\hat{\mu}_2)} under the chosen \code{var.method}.}
+#'
+#' When \code{var.method = 'all'}, a list instead containing:
+#' \item{summary}{a data frame with one row per variance method
+#'   (\code{'paper'}, \code{'weighted_ess'}, \code{'sq_residual'}) and
+#'   columns \code{var.method}, \code{wt.y1}, \code{wt.y2}, \code{wt.diff},
+#'   \code{se1}, \code{se2}, \code{se.diff}, \code{ci.lower},
+#'   \code{ci.upper}, \code{conf.level}, \code{ess1}, \code{ess2}.}
+#' \item{arm1.var}{named numeric vector of the three arm-1 variance estimates.}
+#' \item{arm2.var}{named numeric vector of the three arm-2 variance estimates.}
 #'
 #' @references
 #' Glimm E and Yau L. (2026). 'Exact matching as an alternative to propensity score matching.' \emph{Statistics in Biopharmaceutical Research}, 18(1):106-116. \doi{10.1080/19466315.2025.2507378}.
@@ -106,6 +143,13 @@
 #'           ad.sd   = sqrt(eAD$r.bin.p[1] * (1 - eAD$r.bin.p[1])),
 #'           ad.n    = eAD$r.bin.n[1])
 #'
+#' ## compare all three variance estimators side by side
+#' wtTrtDiff(ipd1.te = eIPD$r.cont, w1 = w.out$maic.wt.rs,
+#'           ad.mean = eAD$r.cont.mean[1],
+#'           ad.sd   = eAD$r.cont.sd[1],
+#'           ad.n    = eAD$r.cont.n[1],
+#'           var.method = 'all')$summary
+#'
 #' \dontrun{
 #' ## ------------------------------------------------------------------
 #' ## IPD vs IPD: symmetric exact-matching weights on sim110 IPD A vs B,
@@ -124,13 +168,11 @@
 #' wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 #'           ipd2.te = ipd2$Y.bin, w2 = w.out$ipd2$exm.wts)
 #' }
-# Modification: 3 methods for arm-level variance estimation,
-# and option to return all 3 in a summary table (2024-06-17, LY)
 wtTrtDiff <- function(ipd1.te, w1,
                       ipd2.te = NULL, w2 = NULL,
                       ad.mean = NULL, ad.sd = NULL, ad.n = NULL,
                       conf.level = 0.95,
-                      var.method = c("paper", "weighted_ess", "sq_residual", "all")) {
+                      var.method = c('paper', 'weighted_ess', 'sq_residual', 'all')) {
 
   ## ---- validate IPD-1 inputs --------------------------------------------
   if (!is.numeric(ipd1.te) || !is.numeric(w1))
@@ -278,8 +320,8 @@ wtTrtDiff <- function(ipd1.te, w1,
     )
   }
 
-  if (identical(var.method, "all")) {
-    methods <- c("paper", "weighted_ess", "sq_residual")
+  if (identical(var.method, 'all')) {
+    methods <- c('paper', 'weighted_ess', 'sq_residual')
     out <- do.call(rbind, lapply(methods, calc_row))
     rownames(out) <- NULL
     return(list(

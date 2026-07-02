@@ -22,12 +22,11 @@ data(eAD)
 \description{
 Three artificial aggregate-data (AD) scenarios used in Glimm & Yau
 (2022). Columns \code{y1} and \code{y2} are the \strong{matching
-covariate means} from the AD study (named historically; despite the
-\code{y} prefix they play the role of baseline covariate means).
+covariate means} from the AD study.
 Columns \code{r.cont.mean}, \code{r.cont.sd}, \code{r.cont.n},
 \code{r.bin.p}, and \code{r.bin.n} are \strong{response summary}
 statistics added in v0.3.0 for use with \code{\link{wtTrtDiff}}; they
-are constant across the three scenarios.
+are the same across the three scenarios.
 }
 \examples{
 data(eAD)

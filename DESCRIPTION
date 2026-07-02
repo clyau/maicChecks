@@ -2,7 +2,7 @@ Package: maicChecks
 Type: Package
 Title: Exact Matching and Matching-Adjusted Indirect Comparison (MAIC)
 Version: 0.3.0
-Date: 2026-06-16
+Date: 2026-07-02
 Authors@R: 
     c(person("Lillian", "Yau", role = c("aut", "cre"), email = "maicChecks@gmail.com"), 
       person("Ekkehard", "Glimm", role = c("aut")),

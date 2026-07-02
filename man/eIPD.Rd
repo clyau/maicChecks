@@ -9,9 +9,9 @@
 \item{\code{y1}}{numeric, matching covariate 1.}
 \item{\code{y2}}{numeric, matching covariate 2.}
 \item{\code{r.cont}}{numeric, simulated \emph{continuous} response
-  (\code{rnorm} with mean 1.0 and SD 0.5; seed-fixed).}
+  (\code{rnorm} with mean 1.0 and SD 0.5).}
 \item{\code{r.bin}}{integer 0/1, simulated \emph{binary} response
-  (\code{rbinom} with prob 0.6; seed-fixed).}
+  (\code{rbinom} with prob 0.6).}
 }
 }
 \usage{
@@ -20,7 +20,7 @@ data(eIPD)
 \description{
 An artificial individual-patient-data (IPD) set used in Glimm & Yau (2022).
 Columns \code{y1} and \code{y2} are the \strong{matching covariates}
-(named historically; despite the \code{y} prefix they play the role of
+(despite the \code{y} prefix they play the role of
 baseline covariates X in MAIC / exact matching). Columns \code{r.cont}
 and \code{r.bin} are simulated \strong{response variables} added in
 v0.3.0 for use with \code{\link{wtTrtDiff}}.

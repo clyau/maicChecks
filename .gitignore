@@ -1,2 +1,9 @@
 _site
 Gemfile.lock
+
+# RStudio / editor session caches (should never be version-controlled)
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.vscode/

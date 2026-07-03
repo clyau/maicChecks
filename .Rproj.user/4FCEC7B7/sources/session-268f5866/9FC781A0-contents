@@ -1,5 +1,0 @@
-library(roxygen2)
-
-use_data(sim110)
-
-

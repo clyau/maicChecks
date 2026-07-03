@@ -3,9 +3,8 @@
 <!-- badges: start -->
 
 [![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html) [![downloads](https://cranlogs.r-pkg.org/badges/maicChecks)](https://www.rdocumentation.org/trends) 
-
 <!-- [![downloads](https://cranlogs.r-pkg.org/badges/grand-total/maicChecks)](https://cran.r-project.org/package=maicChecks) -->
-
+[![R-CMD-check](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Details see

@@ -18,15 +18,24 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 |Package        | Type                 | Source      | Command                          |
 |:--------------|:---------------------|:------------|:---------------------------------|
-| `maicChecks`&nbsp;&nbsp;&nbsp;| Release (version 0.2.0)&nbsp;&nbsp;&nbsp;| CRAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| `install.packages("maicChecks")` |
+| `maicChecks`&nbsp;&nbsp;&nbsp;| Release (version 0.3.0)&nbsp;&nbsp;&nbsp;| CRAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| `install.packages("maicChecks")` |
 
 ## Version history
 
+### Version 0.3.0
+
+**_CURRENT:_ Version 0.3.0** is the latest release (to be submitted to CRAN). This version introduces powerful new features for outcome analysis and robust matching:
+
+-   **Weighted Treatment Difference**: Adds `wtTrtDiff()` to estimate the weighted treatment difference with a Wald confidence interval, using the conservative variance estimator from [Glimm & Yau (2026)](#reference) (with optional sensitivity alternatives). See [Outcome Analysis](#outcome-analysis-weighted-treatment-difference).
+-   **Convex Hull Feasibility Gate**: Automatically checks if aggregate data lies in the convex hull of IPD within `maicWt()` and `maxessWt()`, preventing failed optimization or non-feasible weights with a helpful error.
+-   **One-Sided Target Weighting**: Extended `exmWt.2ipd()` with `target` and `method` options for one-sided MAIC weighting of one IPD study onto another.
+-   **Outcome Datasets**: Added continuous and binary outcome response columns to the package's datasets (`eIPD`, `eAD`, `sim110`) to support complete examples.
+
 ### Version 0.2.0
 
-**_CURRENT:_ Version 0.2.0** was released on CRAN on 3 March, 2025. The following method is added:
+**Version 0.2.0** was released on CRAN on 3 March, 2025. The following method was added:
 
--   [Exact matching](#exact-matching) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2025)](#reference))
+-   [Exact matching](#exact-matching) by maximizing effective sample size (ESS) for comparing two studies both with patient level data ([Glimm and Yau (2026)](#reference))
 
 ### Version 0.1.2
 
@@ -56,7 +65,7 @@ In both situations, one study can be considered a "target" population, and the o
 
 ## Exact matching
 
-Exact matching can be used when IPD are available from both studies. It is an alternative to propensity score matching. The method ensures that after matching, the weighted means of the baseline covariates between the two studies are exactly the same. Details on methodology can be found in [Glimm & Yau (2025)](#reference).
+Exact matching can be used when IPD are available from both studies. It is an alternative to propensity score matching. The method ensures that after matching, the weighted means of the baseline covariates between the two studies are exactly the same. Details on methodology can be found in [Glimm & Yau (2026)](#reference).
 
 ### Method: Linear check
 
@@ -64,7 +73,7 @@ The function `maicChecks::exmLP.2ipd()` checks if there is an overlap between th
 
 #### Usage and example
 
-Included in the package is data set `sim110`. The summary statistics, observed and weight, of the dataset are presented in Table 4 of [Glimm & Yau (2025)](#reference). 
+Included in the package is data set `sim110`. The summary statistics, observed and weight, of the dataset are presented in Table 4 of [Glimm & Yau (2026)](#reference). 
 
 ```r
 require(maicChecks)
@@ -296,9 +305,79 @@ The outputs `me1` and `me1.x` contain the following:
 -    `ipd.ess`: ESS for the IPD study
 -    `ipd.wtsumm`: weighted means of the matching variables. These should be identical to the values of AD.
 
+## Outcome Analysis: Weighted Treatment Difference
+
+Once we have computed standardizing weights (via `maicWt()`, `maxessWt()`, or `exmWt.2ipd()`), we analyze the treatment outcomes to estimate the weighted mean response in both studies, their difference, and the associated standard errors and confidence intervals. 
+
+The function `maicChecks::wtTrtDiff()` computes the treatment difference for both continuous and binary outcomes across two modes:
+1.  **IPD vs AD** (using individual patient data for one study and aggregate summaries for the other study).
+2.  **IPD vs IPD** (using weights and responses from both patient-level datasets).
+
+### Arm-level variance estimation methods
+
+Following [Glimm & Yau (2026)](#reference), computing the treatment-effect difference requires estimating the variance under weighting. `wtTrtDiff()` supports three different estimators via `var.method`:
+-   `'paper'` (default): The conservative variance estimator described in Glimm & Yau (2026, Section 5). It uses the *unweighted* sample mean and sample size as a baseline outcome dispersion, scaled by $1 / \mathrm{ESS}$. Under standard theoretical assumptions, this estimator is guaranteed to be conservative and is the recommended default.
+-   `'weighted_ess'`: Computes the sample variance around the *weighted* mean using the standard weighted sum of squares, scaled by $1 / \mathrm{ESS}$. This arises from treating the weights as pseudo-population frequencies.
+-   `'sq_residual'`: A linearization (sandwich-type) robust estimator formed directly from the weighted residuals without dividing by ESS. This behaves like a robust standard error estimator commonly used in survey sampling.
+
+Using `var.method = 'all'` returns a comparison summary table containing all three estimators side by side, allowing you to perform easy sensitivity analyses.
+
+---
+
+### Usage and Examples
+
+#### Example 1: IPD vs AD (continuous and binary outcomes)
+In this example, we weight the baseline covariates from `eIPD` onto the first scenario of `eAD` using `maicWt()`. We then compare the continuous outcome response `r.cont` and binary outcome response `r.bin` from `eIPD` with the corresponding trial aggregate summaries in `eAD`.
+
+```r
+require(maicChecks)
+
+# 1. Compute standardizing weights
+w.out <- maicWt(eIPD[, c('y1', 'y2')], eAD[1, c('y1', 'y2')])
+
+# 2. Continuous outcome analysis (supplying AD mean, SD, and N)
+wtTrtDiff(ipd1.te = eIPD$r.cont, w1 = w.out$maic.wt.rs,
+          ad.mean = eAD$r.cont.mean[1],
+          ad.sd   = eAD$r.cont.sd[1],
+          ad.n    = eAD$r.cont.n[1])
+
+# 3. Binary outcome analysis, treating AD mean as a fixed constant
+wtTrtDiff(ipd1.te = eIPD$r.bin, w1 = w.out$maic.wt.rs,
+          ad.mean = eAD$r.bin.p[1])
+
+# 4. Compare all three variance estimators side-by-side
+wtTrtDiff(ipd1.te = eIPD$r.cont, w1 = w.out$maic.wt.rs,
+          ad.mean = eAD$r.cont.mean[1],
+          ad.sd   = eAD$r.cont.sd[1],
+          ad.n    = eAD$r.cont.n[1],
+          var.method = 'all')$summary
+```
+
+#### Example 2: IPD vs IPD (using exact-matching weights)
+In this example, we perform symmetric exact-matching on `sim110` IPD A vs B using `exmWt.2ipd()`, and then compare their simulated outcomes `Y` (continuous) and `Y.bin` (binary) using the resulting weights.
+
+```r
+# 1. Subset into the two study groups
+ipd1  <- sim110[sim110$study == 'IPD A', ]
+ipd2  <- sim110[sim110$study == 'IPD B', ]
+
+# 2. Compute exact matching weights on baseline covariates X1-X5
+w.out <- exmWt.2ipd(ipd1, ipd2,
+                    vars_to_match  = paste0('X', 1:5),
+                    cat_vars_to_01 = paste0('X', 1:3))
+
+# 3. Continuous outcome difference with Wald CI
+wtTrtDiff(ipd1.te = ipd1$Y,     w1 = w.out$ipd1$exm.wts,
+          ipd2.te = ipd2$Y,     w2 = w.out$ipd2$exm.wts)
+
+# 4. Binary outcome difference with Wald CI
+wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
+          ipd2.te = ipd2$Y.bin, w2 = w.out$ipd2$exm.wts)
+```
+
 ## Reference
 
--   Glimm E and Yau L. (2025). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
+-   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
 -   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).    
 -   Signorovitch JE, Wu EQ, Andrew P, et al. (2010). "Comparative effectiveness without head-to-head trials: a method for matching-adjusted indirect comparisons applied to psoriasis treatment with adalimumab or etanercept." *PharmacoEconomics*. 28(10):935-945.
 

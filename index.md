@@ -24,7 +24,7 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ### Version 0.3.0
 
-**_CURRENT:_ Version 0.3.0** is the latest release (to be submitted to CRAN). This version introduces powerful new features for outcome analysis and robust matching:
+**_CURRENT:_ Version 0.3.0** is the latest release (to be submitted to CRAN). This version introduces new features for outcome analysis and robust matching:
 
 -   **Weighted Treatment Difference**: Adds `wtTrtDiff()` to estimate the weighted treatment difference with a Wald confidence interval, using the conservative variance estimator from [Glimm & Yau (2026)](#reference) (with optional sensitivity alternatives). See [Outcome Analysis](#outcome-analysis-weighted-treatment-difference).
 -   **Convex Hull Feasibility Gate**: Automatically checks if aggregate data lies in the convex hull of IPD within `maicWt()` and `maxessWt()`, preventing failed optimization or non-feasible weights with a helpful error.
@@ -307,7 +307,7 @@ The outputs `me1` and `me1.x` contain the following:
 
 ## Outcome Analysis: Weighted Treatment Difference
 
-Once we have computed standardizing weights (via `maicWt()`, `maxessWt()`, or `exmWt.2ipd()`), we analyze the treatment outcomes to estimate the weighted mean response in both studies, their difference, and the associated standard errors and confidence intervals. 
+Once standardizing weights have been computed (via `maicWt()`, `maxessWt()`, or `exmWt.2ipd()`), the treatment outcomes can be analyzed to estimate the weighted mean response in both studies, their difference, and the associated standard errors and confidence intervals. 
 
 The function `maicChecks::wtTrtDiff()` computes the treatment difference for both continuous and binary outcomes across two modes:
 1.  **IPD vs AD** (using individual patient data for one study and aggregate summaries for the other study).
@@ -320,14 +320,14 @@ Following [Glimm & Yau (2026)](#reference), computing the treatment-effect diffe
 -   `'weighted_ess'`: Computes the sample variance around the *weighted* mean using the standard weighted sum of squares, scaled by $1 / \mathrm{ESS}$. This arises from treating the weights as pseudo-population frequencies.
 -   `'sq_residual'`: A linearization (sandwich-type) robust estimator formed directly from the weighted residuals without dividing by ESS. This behaves like a robust standard error estimator commonly used in survey sampling.
 
-Using `var.method = 'all'` returns a comparison summary table containing all three estimators side by side, allowing you to perform easy sensitivity analyses.
+Using `var.method = 'all'` returns a comparison summary table containing all three estimators side by side, allowing sensitivity analyses to be performed easily.
 
 ---
 
 ### Usage and Examples
 
 #### Example 1: IPD vs AD (continuous and binary outcomes)
-In this example, we weight the baseline covariates from `eIPD` onto the first scenario of `eAD` using `maicWt()`. We then compare the continuous outcome response `r.cont` and binary outcome response `r.bin` from `eIPD` with the corresponding trial aggregate summaries in `eAD`.
+In this example, the baseline covariates from `eIPD` are weighted onto the first scenario of `eAD` using `maicWt()`. The continuous outcome response `r.cont` and binary outcome response `r.bin` from `eIPD` are then compared with the corresponding trial aggregate summaries in `eAD`.
 
 ```r
 require(maicChecks)
@@ -354,7 +354,7 @@ wtTrtDiff(ipd1.te = eIPD$r.cont, w1 = w.out$maic.wt.rs,
 ```
 
 #### Example 2: IPD vs IPD (using exact-matching weights)
-In this example, we perform symmetric exact-matching on `sim110` IPD A vs B using `exmWt.2ipd()`, and then compare their simulated outcomes `Y` (continuous) and `Y.bin` (binary) using the resulting weights.
+In this example, symmetric exact-matching on `sim110` IPD A vs B is performed using `exmWt.2ipd()`, and their simulated outcomes `Y` (continuous) and `Y.bin` (binary) are then compared using the resulting weights.
 
 ```r
 # 1. Subset into the two study groups

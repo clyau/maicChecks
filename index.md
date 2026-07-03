@@ -7,7 +7,12 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 <!-- badges: start -->
 
-[![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html) [![downloads](https://cranlogs.r-pkg.org/badges/maicChecks)](https://www.rdocumentation.org/trends)<a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
+[![CRAN version](https://www.r-pkg.org/badges/version/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
+[![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html)
+[![R-CMD-check](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml)
+[![downloads](https://cranlogs.r-pkg.org/badges/last-month/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
+[![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
+<a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
 
 <!-- badges: end -->
 

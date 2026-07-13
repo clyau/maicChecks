@@ -29,7 +29,7 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ### Version 0.3.0
 
-**_CURRENT:_ Version 0.3.0** is the latest release (to be submitted to CRAN). This version introduces new features for outcome analysis and robust matching:
+**_CURRENT:_ Version 0.3.0** was released on CRAN on 3 July 2026. This version introduces new features for outcome analysis and robust matching:
 
 -   **Weighted Treatment Difference**: Adds `wtTrtDiff()` to estimate the weighted treatment difference with a Wald confidence interval, using the conservative variance estimator from [Glimm & Yau (2026)](#reference) (with optional sensitivity alternatives). See [Outcome Analysis](#outcome-analysis-weighted-treatment-difference).
 -   **One-Sided Target Weighting**: Extended `exmWt.2ipd()` with `target` and `method` options for one-sided MAIC weighting of one IPD study onto another.

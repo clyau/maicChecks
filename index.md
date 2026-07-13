@@ -16,6 +16,40 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 <!-- badges: end -->
 
+<style>
+#toc-sidebar { font-size: 0.85em; line-height: 1.4; margin: 1em 0; }
+#toc-sidebar .toc-title { font-weight: bold; margin-bottom: 0.5em; display: block; }
+#toc-sidebar ul { list-style: none; padding-left: 1em; margin: 0.2em 0; }
+#toc-sidebar > ul { padding-left: 0; }
+#toc-sidebar a { color: #333; text-decoration: none; }
+#toc-sidebar a:hover { text-decoration: underline; color: #08c; }
+
+/* Float to the left of the content on wide screens; inline otherwise. */
+@media (min-width: 1300px) {
+  #toc-sidebar {
+    position: fixed;
+    top: 80px;
+    left: 24px;
+    width: 240px;
+    max-height: 82vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 14px 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+}
+</style>
+
+<div id="toc-sidebar" markdown="1">
+<span class="toc-title">Contents</span>
+
+{::options toc_levels="2..3" /}
+* toc
+{:toc}
+</div>
+
 
 ## Installation
 
@@ -385,6 +419,31 @@ wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 -   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
 -   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).    
 -   Signorovitch JE, Wu EQ, Andrew P, et al. (2010). "Comparative effectiveness without head-to-head trials: a method for matching-adjusted indirect comparisons applied to psoriasis treatment with adalimumab or etanercept." *PharmacoEconomics*. 28(10):935-945.
+
+## Citation
+
+To cite the `maicChecks` package in publications, the citation information can be obtained by running:
+
+``` r
+citation("maicChecks")
+```
+
+The methodology underlying the package is described in the following publications:
+
+-   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
+-   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://doi.org/10.1002/pst.2210).
+
+A BibTeX entry for the package is:
+
+``` bibtex
+@Manual{maicChecks,
+  title  = {maicChecks: Exact Matching and Matching-Adjusted Indirect Comparison (MAIC)},
+  author = {Lillian Yau and Ekkehard Glimm and Xinlei Deng},
+  year   = {2026},
+  note   = {R package version 0.3.0},
+  url    = {https://CRAN.R-project.org/package=maicChecks},
+}
+```
 
 ## Package authors
 

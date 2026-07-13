@@ -7,8 +7,8 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 <!-- badges: start -->
 
+<!-- [![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html) -->
 [![CRAN version](https://www.r-pkg.org/badges/version/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
-[![CRAN status](https://badges.cranchecks.info/flavor/release/maicChecks.svg)](https://cran.r-project.org/web/checks/check_results_maicChecks.html)
 [![R-CMD-check](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml)
 [![downloads](https://cranlogs.r-pkg.org/badges/last-month/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
@@ -63,7 +63,7 @@ description: Exact matching and matching-adjusted indirect comparisons
 
 ### Version 0.3.0
 
-**_CURRENT:_ Version 0.3.0** is the latest release (to be submitted to CRAN). This version introduces new features for outcome analysis and robust matching:
+**_CURRENT:_ Version 0.3.0** was released on CRAN on 3 July 2026. This version introduces new features for outcome analysis and robust matching:
 
 -   **Weighted Treatment Difference**: Adds `wtTrtDiff()` to estimate the weighted treatment difference with a Wald confidence interval, using the conservative variance estimator from [Glimm & Yau (2026)](#reference) (with optional sensitivity alternatives). See [Outcome Analysis](#outcome-analysis-weighted-treatment-difference).
 -   **One-Sided Target Weighting**: Extended `exmWt.2ipd()` with `target` and `method` options for one-sided MAIC weighting of one IPD study onto another.
@@ -416,7 +416,7 @@ wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 
 ## Reference
 
--   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
+-   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*, 18(1):106-116](https://doi.org/10.1080/19466315.2025.2507378).
 -   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).    
 -   Signorovitch JE, Wu EQ, Andrew P, et al. (2010). "Comparative effectiveness without head-to-head trials: a method for matching-adjusted indirect comparisons applied to psoriasis treatment with adalimumab or etanercept." *PharmacoEconomics*. 28(10):935-945.
 

@@ -7,7 +7,6 @@
 [![R-CMD-check](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/clyau/maicChecks/actions/workflows/R-CMD-check.yaml)
 [![downloads](https://cranlogs.r-pkg.org/badges/last-month/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
 [![total downloads](https://cranlogs.r-pkg.org/badges/grand-total/maicChecks)](https://CRAN.R-project.org/package=maicChecks)
-<a href="https://github.com/clyau/maicChecks"><img src="MaicChecks.png" align="right"/></a>
 
 <!-- badges: end -->
 ## Details see

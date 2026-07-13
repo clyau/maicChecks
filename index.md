@@ -436,6 +436,6 @@ Yau L, Glimm E, Deng X (2026). maicChecks: Exact Matching and Matching-Adjusted 
 
 ## Package authors
 
--   Lillian Yau
--   Ekkehard Glimm
--   Xinlei Deng
+-   Lillian Yau: Author, maintainer
+-   Ekkehard Glimm: Author
+-   Xinlei Deng: Contributor

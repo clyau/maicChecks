@@ -422,18 +422,7 @@ wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 
 ## Citation
 
-To cite the `maicChecks` package in publications, the citation information can be obtained by running:
-
-``` r
-citation("maicChecks")
-```
-
-The methodology underlying the package is described in the following publications:
-
--   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*, 18(1):106-116](https://doi.org/10.1080/19466315.2025.2507378).
--   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://doi.org/10.1002/pst.2210).
-
-A BibTeX entry for the package is:
+Yau L, Glimm E, Deng X (2026). maicChecks: Exact Matching and Matching-Adjusted Indirect Comparison (MAIC). R package version 0.3.0.
 
 ``` bibtex
 @Manual{maicChecks,

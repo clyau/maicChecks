@@ -382,7 +382,7 @@ wtTrtDiff(ipd1.te = ipd1$Y.bin, w1 = w.out$ipd1$exm.wts,
 
 ## Reference
 
--   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
+-   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*, 18(1):106-116](https://doi.org/10.1080/19466315.2025.2507378).
 -   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://onlinelibrary.wiley.com/doi/full/10.1002/pst.2210).    
 -   Signorovitch JE, Wu EQ, Andrew P, et al. (2010). "Comparative effectiveness without head-to-head trials: a method for matching-adjusted indirect comparisons applied to psoriasis treatment with adalimumab or etanercept." *PharmacoEconomics*. 28(10):935-945.
 

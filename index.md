@@ -430,7 +430,7 @@ citation("maicChecks")
 
 The methodology underlying the package is described in the following publications:
 
--   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*](https://doi.org/10.1080/19466315.2025.2507378).
+-   Glimm E and Yau L. (2026). "Exact matching as an alternative to propensity score matching." [*Statistics in Biopharmaceutical Research*, 18(1):106-116](https://doi.org/10.1080/19466315.2025.2507378).
 -   Glimm E and Yau L. (2022). "Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons." [*Pharmaceutical Statistics*. 21(5):974-987](https://doi.org/10.1002/pst.2210).
 
 A BibTeX entry for the package is:
